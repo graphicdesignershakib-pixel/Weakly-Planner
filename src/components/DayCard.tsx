@@ -13,6 +13,8 @@ import {
 import { DayPlan, Task, DayInfo } from '../types/planner';
 import { CompletionRing } from './CompletionRing';
 import { calculateDailyProgress } from '../utils/calculations';
+import { playTaskCompleteSound } from '../utils/soundEffects';
+import { fireConfetti } from '../utils/confetti';
 
 interface DayCardProps {
   dayInfo: DayInfo;
@@ -71,6 +73,17 @@ export const DayCard: React.FC<DayCardProps> = ({
     inputRef.current?.focus();
   };
 
+  const handleToggle = (task: Task) => {
+    if (!task.completed) {
+      playTaskCompleteSound();
+      const remainingIncomplete = tasks.filter((t) => !t.completed && t.id !== task.id).length;
+      if (remainingIncomplete === 0 && tasks.length > 0) {
+        fireConfetti();
+      }
+    }
+    onToggleTask(dayInfo.dayIndex, task.id);
+  };
+
   const startEditing = (task: Task) => {
     setEditingTaskId(task.id);
     setEditingTitle(task.title);
@@ -97,7 +110,7 @@ export const DayCard: React.FC<DayCardProps> = ({
   return (
     <div
       id={`day-card-${dayInfo.dayIndex}`}
-      className={`day-card bg-white border rounded-lg flex flex-col justify-between transition-all duration-200 ${
+      className={`day-card bg-white border rounded-xl flex flex-col justify-between transition-all duration-200 ${
         isActive
           ? 'border-[#111111] shadow-xs ring-1 ring-[#111111]/10'
           : 'border-[#E5E7EB] hover:border-[#D4D4D8]'
@@ -187,7 +200,7 @@ export const DayCard: React.FC<DayCardProps> = ({
               return (
                 <div
                   key={task.id}
-                  className={`group flex items-start justify-between gap-1.5 p-1.5 rounded transition-colors ${
+                  className={`group flex items-start justify-between gap-1.5 p-1.5 rounded-lg transition-colors ${
                     task.completed
                       ? 'bg-[#FAFAFA]'
                       : isHighPriority
@@ -201,10 +214,10 @@ export const DayCard: React.FC<DayCardProps> = ({
                       type="button"
                       role="checkbox"
                       aria-checked={task.completed}
-                      onClick={() => onToggleTask(dayInfo.dayIndex, task.id)}
+                      onClick={() => handleToggle(task)}
                       className={`mt-0.5 w-4 h-4 rounded-xs border flex items-center justify-center shrink-0 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111111] ${
                         task.completed
-                          ? 'bg-[#111111] border-[#111111] text-white'
+                          ? 'bg-[#111111] border-[#111111] text-white shadow-xs'
                           : 'bg-white border-[#D4D4D8] hover:border-[#71717A]'
                       }`}
                     >
@@ -244,7 +257,7 @@ export const DayCard: React.FC<DayCardProps> = ({
                     ) : (
                       <div className="flex items-baseline gap-1.5 min-w-0 flex-1">
                         <span
-                          onClick={() => onToggleTask(dayInfo.dayIndex, task.id)}
+                          onClick={() => handleToggle(task)}
                           onDoubleClick={(e) => {
                             e.stopPropagation();
                             startEditing(task);
@@ -264,7 +277,7 @@ export const DayCard: React.FC<DayCardProps> = ({
                     )}
                   </div>
 
-                  {/* Actions (visible on hover / active) */}
+                  {/* Actions */}
                   {!isEditing && (
                     <div className="flex items-center gap-0.5 opacity-80 sm:opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                       {/* Priority toggle */}
@@ -347,12 +360,12 @@ export const DayCard: React.FC<DayCardProps> = ({
               value={newTaskTitle}
               onChange={(e) => setNewTaskTitle(e.target.value)}
               placeholder="Add a task..."
-              className="w-full text-xs text-[#111111] bg-[#F8F9FA] hover:bg-white focus:bg-white border border-[#E5E7EB] focus:border-[#111111] rounded px-2.5 py-1.5 transition-colors focus:outline-none placeholder:text-[#A1A1AA]"
+              className="w-full text-xs text-[#111111] bg-[#F8F9FA] hover:bg-white focus:bg-white border border-[#E5E7EB] focus:border-[#111111] rounded-lg px-2.5 py-1.5 transition-colors focus:outline-none placeholder:text-[#A1A1AA]"
             />
             <button
               type="submit"
               disabled={!newTaskTitle.trim()}
-              className="p-1.5 bg-[#111111] text-white disabled:bg-[#E5E7EB] disabled:text-[#A1A1AA] hover:bg-[#27272A] rounded transition-colors shrink-0 cursor-pointer"
+              className="p-1.5 bg-[#111111] text-white disabled:bg-[#E5E7EB] disabled:text-[#A1A1AA] hover:bg-[#27272A] rounded-lg transition-colors shrink-0 cursor-pointer shadow-xs"
               title="Add task (Enter)"
               aria-label="Add task"
             >

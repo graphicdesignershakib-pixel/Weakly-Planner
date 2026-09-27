@@ -1,9 +1,14 @@
-import { PlannerState } from '../types/planner';
-import { generateBlankWeek, generateSampleData } from '../data/initialData';
+import { PlannerState, Habit, MasterTodo, LongTermGoal, ShortTermGoal } from '../types/planner';
+import { generateBlankWeek, generateSampleData, DEFAULT_HABITS, DEFAULT_LONG_TERM_GOALS, DEFAULT_SHORT_TERM_GOALS, DEFAULT_MASTER_TODOS } from '../data/initialData';
 import { getWeekDaysInfo } from '../utils/dateUtils';
 
 const STORAGE_PREFIX = 'weekly_life_planner_v1_';
 const LAST_WEEK_KEY = 'weekly_life_planner_last_week';
+const MASTER_HABITS_KEY = 'weekly_life_planner_master_habits';
+const MASTER_TODOS_KEY = 'weekly_life_planner_master_todos';
+const MASTER_LONG_GOALS_KEY = 'weekly_life_planner_master_long_goals';
+const MASTER_SHORT_GOALS_KEY = 'weekly_life_planner_master_short_goals';
+const HAS_INITIALIZED_KEY = 'weekly_life_planner_has_initialized_v2';
 
 export interface StorageRepository {
   load(weekStart: string): PlannerState;
@@ -21,20 +26,110 @@ class LocalStorageRepository implements StorageRepository {
     return `${STORAGE_PREFIX}${weekStart}`;
   }
 
-  load(weekStart: string): PlannerState {
+  private getMasterHabits(): Habit[] {
     try {
-      const key = this.getKey(weekStart);
+      const data = localStorage.getItem(MASTER_HABITS_KEY);
+      if (data) return JSON.parse(data);
+    } catch {
+      // ignore
+    }
+    return DEFAULT_HABITS;
+  }
+
+  private setMasterHabits(habits: Habit[]): void {
+    try {
+      localStorage.setItem(MASTER_HABITS_KEY, JSON.stringify(habits));
+    } catch {
+      // ignore
+    }
+  }
+
+  private getMasterTodos(): MasterTodo[] {
+    try {
+      const data = localStorage.getItem(MASTER_TODOS_KEY);
+      if (data) return JSON.parse(data);
+    } catch {
+      // ignore
+    }
+    return DEFAULT_MASTER_TODOS;
+  }
+
+  private setMasterTodos(todos: MasterTodo[]): void {
+    try {
+      localStorage.setItem(MASTER_TODOS_KEY, JSON.stringify(todos));
+    } catch {
+      // ignore
+    }
+  }
+
+  private getMasterLongGoals(): LongTermGoal[] {
+    try {
+      const data = localStorage.getItem(MASTER_LONG_GOALS_KEY);
+      if (data) return JSON.parse(data);
+    } catch {
+      // ignore
+    }
+    return DEFAULT_LONG_TERM_GOALS;
+  }
+
+  private setMasterLongGoals(goals: LongTermGoal[]): void {
+    try {
+      localStorage.setItem(MASTER_LONG_GOALS_KEY, JSON.stringify(goals));
+    } catch {
+      // ignore
+    }
+  }
+
+  private getMasterShortGoals(): ShortTermGoal[] {
+    try {
+      const data = localStorage.getItem(MASTER_SHORT_GOALS_KEY);
+      if (data) return JSON.parse(data);
+    } catch {
+      // ignore
+    }
+    return DEFAULT_SHORT_TERM_GOALS;
+  }
+
+  private setMasterShortGoals(goals: ShortTermGoal[]): void {
+    try {
+      localStorage.setItem(MASTER_SHORT_GOALS_KEY, JSON.stringify(goals));
+    } catch {
+      // ignore
+    }
+  }
+
+  load(weekStart: string): PlannerState {
+    const key = this.getKey(weekStart);
+    try {
       const serialized = localStorage.getItem(key);
       if (serialized) {
         const parsed = JSON.parse(serialized);
-        // Ensure day alignment in case week days changed or partial state saved
         return this.sanitizeState(parsed, weekStart);
       }
     } catch (e) {
       console.error('Failed to load planner state from localStorage:', e);
     }
-    // Return sample data for current week on initial start
-    return generateSampleData(weekStart);
+
+    // Check if this is the first time the app is EVER run
+    const hasInitialized = localStorage.getItem(HAS_INITIALIZED_KEY);
+    if (!hasInitialized) {
+      localStorage.setItem(HAS_INITIALIZED_KEY, 'true');
+      const sampleState = generateSampleData(weekStart);
+      this.save(sampleState);
+      return sampleState;
+    }
+
+    // For any NEW or unvisited week, start completely blank and fresh!
+    // But preserve master habit templates and long/short term goals
+    const blankState = generateBlankWeek(
+      weekStart,
+      this.getMasterHabits(),
+      this.getMasterTodos(),
+      this.getMasterLongGoals(),
+      this.getMasterShortGoals()
+    );
+    this.save(blankState);
+    return blankState;
   }
 
   save(state: PlannerState): void {
@@ -42,6 +137,20 @@ class LocalStorageRepository implements StorageRepository {
       const key = this.getKey(state.weekStart);
       localStorage.setItem(key, JSON.stringify(state));
       this.setLastActiveWeek(state.weekStart);
+
+      // Persist global items
+      if (state.habits && state.habits.length > 0) {
+        this.setMasterHabits(state.habits);
+      }
+      if (state.masterTodos) {
+        this.setMasterTodos(state.masterTodos);
+      }
+      if (state.longTermGoals) {
+        this.setMasterLongGoals(state.longTermGoals);
+      }
+      if (state.shortTermGoals) {
+        this.setMasterShortGoals(state.shortTermGoals);
+      }
     } catch (e) {
       console.error('Failed to save planner state to localStorage:', e);
     }
@@ -50,7 +159,13 @@ class LocalStorageRepository implements StorageRepository {
   reset(weekStart: string, useSample: boolean = true): PlannerState {
     const freshState = useSample
       ? generateSampleData(weekStart)
-      : generateBlankWeek(weekStart);
+      : generateBlankWeek(
+          weekStart,
+          this.getMasterHabits(),
+          this.getMasterTodos(),
+          this.getMasterLongGoals(),
+          this.getMasterShortGoals()
+        );
     this.save(freshState);
     return freshState;
   }
@@ -84,6 +199,10 @@ class LocalStorageRepository implements StorageRepository {
           allData[key] = JSON.parse(localStorage.getItem(key) || '{}');
         }
       }
+      allData['masterHabits'] = this.getMasterHabits();
+      allData['masterTodos'] = this.getMasterTodos();
+      allData['masterLongGoals'] = this.getMasterLongGoals();
+      allData['masterShortGoals'] = this.getMasterShortGoals();
       return JSON.stringify(allData, null, 2);
     } catch (e) {
       console.error('Failed to export JSON', e);
@@ -100,6 +219,10 @@ class LocalStorageRepository implements StorageRepository {
           localStorage.setItem(key, JSON.stringify(value));
         }
       }
+      if (parsed['masterHabits']) this.setMasterHabits(parsed['masterHabits']);
+      if (parsed['masterTodos']) this.setMasterTodos(parsed['masterTodos']);
+      if (parsed['masterLongGoals']) this.setMasterLongGoals(parsed['masterLongGoals']);
+      if (parsed['masterShortGoals']) this.setMasterShortGoals(parsed['masterShortGoals']);
       return true;
     } catch (e) {
       console.error('Failed to import JSON', e);
@@ -107,9 +230,9 @@ class LocalStorageRepository implements StorageRepository {
     }
   }
 
-  private sanitizeState(saved: Partial<PlannerState>, weekStart: string): PlannerState {
+  private sanitizeState(data: Partial<PlannerState>, weekStart: string): PlannerState {
     const daysInfo = getWeekDaysInfo(weekStart);
-    const existingDays = saved.days || [];
+    const existingDays = Array.isArray(data.days) ? data.days : [];
 
     // Ensure all 7 days exist with valid structure
     const days = daysInfo.map((info) => {
@@ -133,30 +256,36 @@ class LocalStorageRepository implements StorageRepository {
       };
     });
 
-    const habits = (saved.habits || []).map((h, i) => ({
-      id: h.id || `h-${i}`,
-      name: h.name || 'Habit',
-      completed: Array.isArray(h.completed)
-        ? Array.from({ length: 7 }, (_, d) => Boolean(h.completed[d]))
-        : [false, false, false, false, false, false, false],
-    }));
+    const habits = Array.isArray(data.habits) && data.habits.length > 0
+      ? data.habits.map((h, i) => ({
+          id: h.id || `h-${i}`,
+          name: h.name || `Habit ${i + 1}`,
+          category: h.category || 'health',
+          completed: Array.isArray(h.completed) && h.completed.length === 7
+            ? h.completed.map(Boolean)
+            : [false, false, false, false, false, false, false],
+        }))
+      : this.getMasterHabits();
 
     return {
-      weekStart,
-      focus: saved.focus || '',
-      objective: saved.objective || '',
-      reward: saved.reward || '',
+      weekStart: data.weekStart || weekStart,
+      focus: data.focus || '',
+      objective: data.objective || '',
+      reward: data.reward || '',
       days,
-      habits: habits.length > 0 ? habits : generateBlankWeek(weekStart).habits,
+      habits,
       review: {
-        wentWell: saved.review?.wentWell || '',
-        challenges: saved.review?.challenges || '',
-        achievement: saved.review?.achievement || '',
-        lesson: saved.review?.lesson || '',
-        nextWeekPriority: saved.review?.nextWeekPriority || '',
+        wentWell: data.review?.wentWell || '',
+        challenges: data.review?.challenges || '',
+        achievement: data.review?.achievement || '',
+        lesson: data.review?.lesson || '',
+        nextWeekPriority: data.review?.nextWeekPriority || '',
       },
+      masterTodos: Array.isArray(data.masterTodos) ? data.masterTodos : this.getMasterTodos(),
+      longTermGoals: Array.isArray(data.longTermGoals) ? data.longTermGoals : this.getMasterLongGoals(),
+      shortTermGoals: Array.isArray(data.shortTermGoals) ? data.shortTermGoals : this.getMasterShortGoals(),
     };
   }
 }
 
-export const plannerStorage: StorageRepository = new LocalStorageRepository();
+export const plannerStorage = new LocalStorageRepository();
