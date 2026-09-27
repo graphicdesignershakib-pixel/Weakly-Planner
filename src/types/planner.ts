@@ -7,12 +7,42 @@ export type Task = {
   title: string;
   completed: boolean;
   priority?: 'high' | 'normal';
+  time?: string; // e.g. "09:30 AM" or "14:00"
+};
+
+export type DayMood = 'fire' | 'focus' | 'calm' | 'tired' | 'rest';
+
+export type DayPrayers = {
+  fajr: boolean;
+  dhuhr: boolean;
+  asr: boolean;
+  maghrib: boolean;
+  isha: boolean;
 };
 
 export type DayPlan = {
   date: string; // YYYY-MM-DD format
   tasks: Task[];
   note: string;
+  mood?: DayMood;
+  prayers?: DayPrayers;
+  waterGlasses?: number; // 0 to 8 glasses
+  winOfTheDay?: string; // Daily highlight or achievement
+  gratitude?: string; // What I am grateful for today
+};
+
+export type ThemeType = 'minimal' | 'sage' | 'latte' | 'obsidian';
+
+export type UserProfile = {
+  name: string;
+  tagline: string;
+  avatarSeed?: string;
+};
+
+export type ScratchNote = {
+  id: string;
+  content: string;
+  createdAt: string;
 };
 
 export type HabitCategory = 'health' | 'study' | 'pray' | 'work' | 'personal';

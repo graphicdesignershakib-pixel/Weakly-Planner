@@ -36,37 +36,37 @@ export const CATEGORY_CONFIG: Record<
   health: {
     label: 'Health & Exercise',
     icon: Activity,
-    bg: 'bg-emerald-50',
-    text: 'text-emerald-700',
-    border: 'border-emerald-200',
+    bg: 'bg-emerald-50 dark:bg-emerald-950/40',
+    text: 'text-emerald-700 dark:text-emerald-300',
+    border: 'border-emerald-200 dark:border-emerald-800/50',
   },
   pray: {
     label: 'Pray & Mindfulness',
     icon: Sparkles,
-    bg: 'bg-purple-50',
-    text: 'text-purple-700',
-    border: 'border-purple-200',
+    bg: 'bg-purple-50 dark:bg-purple-950/40',
+    text: 'text-purple-700 dark:text-purple-300',
+    border: 'border-purple-200 dark:border-purple-800/50',
   },
   study: {
     label: 'Study & Learning',
     icon: BookOpen,
-    bg: 'bg-sky-50',
-    text: 'text-sky-700',
-    border: 'border-sky-200',
+    bg: 'bg-sky-50 dark:bg-sky-950/40',
+    text: 'text-sky-700 dark:text-sky-300',
+    border: 'border-sky-200 dark:border-sky-800/50',
   },
   work: {
     label: 'Work & Career',
     icon: Briefcase,
-    bg: 'bg-amber-50',
-    text: 'text-amber-700',
-    border: 'border-amber-200',
+    bg: 'bg-amber-50 dark:bg-amber-950/40',
+    text: 'text-amber-700 dark:text-amber-300',
+    border: 'border-amber-200 dark:border-amber-800/50',
   },
   personal: {
     label: 'Personal & Life',
     icon: User,
-    bg: 'bg-rose-50',
-    text: 'text-rose-700',
-    border: 'border-rose-200',
+    bg: 'bg-rose-50 dark:bg-rose-950/40',
+    text: 'text-rose-700 dark:text-rose-300',
+    border: 'border-rose-200 dark:border-rose-800/50',
   },
 };
 
@@ -136,43 +136,43 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
   });
 
   return (
-    <section aria-labelledby="habit-tracker-heading" className="bg-white border border-[#E5E7EB] rounded-xl p-4 sm:p-6 shadow-xs">
+    <section aria-labelledby="habit-tracker-heading" className="bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] rounded-xl p-4 sm:p-6 shadow-xs transition-colors">
       {/* Section Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#F4F4F5]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#F4F4F5] dark:border-[#27272A]">
         <div className="flex items-center gap-2.5">
-          <span className="p-2 bg-[#111111] text-white rounded-lg shadow-xs">
+          <span className="p-2 bg-[#111111] dark:bg-white text-white dark:text-[#111111] rounded-lg shadow-xs">
             <Flame className="w-4 h-4" />
           </span>
           <div>
             <div className="flex items-center gap-2">
-              <h2 id="habit-tracker-heading" className="text-base font-bold text-[#111111] tracking-tight">
+              <h2 id="habit-tracker-heading" className="text-base font-bold text-[#111111] dark:text-white tracking-tight">
                 Categorized Habit Matrix
               </h2>
-              <span className="text-[10px] font-bold uppercase tracking-wider bg-[#FAFAFA] border border-[#E5E7EB] text-[#52525B] px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-bold uppercase tracking-wider bg-[#FAFAFA] dark:bg-[#202024] border border-[#E5E7EB] dark:border-[#27272A] text-[#52525B] dark:text-[#A1A1AA] px-2 py-0.5 rounded-full">
                 {habits.length} Habits
               </span>
             </div>
-            <p className="text-xs text-[#71717A] mt-0.5">
+            <p className="text-xs text-[#71717A] dark:text-[#A1A1AA] mt-0.5">
               Health, Prayer, Study, Work & Personal discipline
             </p>
           </div>
         </div>
 
         {/* Overall Habit Metric */}
-        <div className="flex items-center gap-3 bg-[#F8F9FA] border border-[#E5E7EB] px-3.5 py-1.5 rounded-lg self-start sm:self-auto">
-          <span className="text-xs font-semibold text-[#52525B]">Weekly Consistency:</span>
-          <span className="text-sm font-bold text-[#111111] tabular-nums font-mono">
+        <div className="flex items-center gap-3 bg-[#F8F9FA] dark:bg-[#202024] border border-[#E5E7EB] dark:border-[#27272A] px-3.5 py-1.5 rounded-lg self-start sm:self-auto">
+          <span className="text-xs font-semibold text-[#52525B] dark:text-[#A1A1AA]">Weekly Consistency:</span>
+          <span className="text-sm font-bold text-[#111111] dark:text-white tabular-nums font-mono">
             {overall.percentage}%
           </span>
-          <span className="text-[11px] text-[#71717A]">
+          <span className="text-[11px] text-[#71717A] dark:text-[#A1A1AA]">
             ({overall.completed}/{overall.total})
           </span>
         </div>
       </div>
 
       {/* Category Pills & Quick Filter Bar */}
-      <div className="flex flex-wrap items-center gap-1.5 pt-4 pb-3 border-b border-[#F4F4F5]">
-        <span className="text-xs font-semibold text-[#71717A] mr-1 flex items-center gap-1">
+      <div className="flex flex-wrap items-center gap-1.5 pt-4 pb-3 border-b border-[#F4F4F5] dark:border-[#27272A]">
+        <span className="text-xs font-semibold text-[#71717A] dark:text-[#A1A1AA] mr-1 flex items-center gap-1">
           <Layers className="w-3.5 h-3.5" /> Filter:
         </span>
         <button
@@ -180,8 +180,8 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
           onClick={() => setFilterCategory('all')}
           className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer ${
             filterCategory === 'all'
-              ? 'bg-[#111111] text-white shadow-xs'
-              : 'bg-[#F4F4F5] text-[#52525B] hover:bg-[#E5E7EB]'
+              ? 'bg-[#111111] text-white dark:bg-white dark:text-[#111111] shadow-xs'
+              : 'bg-[#F4F4F5] dark:bg-[#202024] text-[#52525B] dark:text-[#A1A1AA] hover:bg-[#E5E7EB] dark:hover:bg-[#27272A]'
           }`}
         >
           All ({habits.length})
@@ -201,7 +201,7 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
               className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer ${
                 isSelected
                   ? `${cfg.bg} ${cfg.text} border ${cfg.border} ring-1 ring-current`
-                  : 'bg-[#FAFAFA] hover:bg-[#F4F4F5] text-[#52525B] border border-transparent'
+                  : 'bg-[#FAFAFA] dark:bg-[#121214] hover:bg-[#F4F4F5] dark:hover:bg-[#202024] text-[#52525B] dark:text-[#A1A1AA] border border-transparent'
               }`}
             >
               <Icon className="w-3 h-3" />
@@ -218,7 +218,7 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
       <div className="overflow-x-auto mt-3">
         <table className="w-full text-left border-collapse min-w-[620px]">
           <thead>
-            <tr className="border-b border-[#E5E7EB] text-[#71717A] text-xs uppercase tracking-wider">
+            <tr className="border-b border-[#E5E7EB] dark:border-[#27272A] text-[#71717A] dark:text-[#A1A1AA] text-xs uppercase tracking-wider">
               <th scope="col" className="py-2.5 px-3 font-bold w-1/3">
                 Habit & Category
               </th>
@@ -227,12 +227,12 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
                   key={info.dayIndex}
                   scope="col"
                   className={`py-2.5 px-1.5 text-center font-bold w-[46px] ${
-                    info.isToday ? 'text-[#111111] bg-amber-50/70 rounded-t' : ''
+                    info.isToday ? 'text-[#111111] dark:text-white bg-amber-50/70 dark:bg-amber-950/30 rounded-t' : ''
                   }`}
                 >
                   <div className="flex flex-col items-center">
                     <span className="text-[11px] font-extrabold">{info.singleLetter}</span>
-                    <span className="text-[10px] font-normal text-[#A1A1AA]">
+                    <span className="text-[10px] font-normal text-[#A1A1AA] dark:text-[#71717A]">
                       {info.formattedDate.split(' ')[0]}
                     </span>
                   </div>
@@ -247,10 +247,10 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-[#F4F4F5] text-xs">
+          <tbody className="divide-y divide-[#F4F4F5] dark:divide-[#27272A] text-xs">
             {filteredHabits.length === 0 ? (
               <tr>
-                <td colSpan={10} className="py-8 text-center text-xs text-[#A1A1AA]">
+                <td colSpan={10} className="py-8 text-center text-xs text-[#A1A1AA] dark:text-[#71717A]">
                   No habits in this category yet. Use the form below to create one.
                 </td>
               </tr>
@@ -266,7 +266,7 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
                 return (
                   <tr
                     key={habit.id}
-                    className="hover:bg-[#F8F9FA]/80 transition-colors group"
+                    className="hover:bg-[#F8F9FA]/80 dark:hover:bg-[#202024]/60 transition-colors group"
                   >
                     {/* Habit Name & Category */}
                     <td className="py-2.5 px-3">
@@ -277,7 +277,7 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
                               type="text"
                               value={editingName}
                               onChange={(e) => setEditingName(e.target.value)}
-                              className="text-xs bg-white border border-[#111111] rounded px-2 py-1 text-[#111111] focus:outline-none flex-1"
+                              className="text-xs bg-white dark:bg-[#18181B] border border-[#111111] dark:border-white rounded px-2 py-1 text-[#111111] dark:text-white focus:outline-none flex-1"
                               autoFocus
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') saveRename(habit.id);
@@ -287,7 +287,7 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
                             <button
                               type="button"
                               onClick={() => saveRename(habit.id)}
-                              className="p-1 text-[#111111] hover:bg-[#E5E7EB] rounded cursor-pointer"
+                              className="p-1 text-[#111111] dark:text-white hover:bg-[#E5E7EB] dark:hover:bg-[#27272A] rounded cursor-pointer"
                               title="Save"
                             >
                               <Check className="w-3.5 h-3.5" />
@@ -295,7 +295,7 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
                             <button
                               type="button"
                               onClick={cancelRename}
-                              className="p-1 text-[#71717A] hover:bg-[#E5E7EB] rounded cursor-pointer"
+                              className="p-1 text-[#71717A] hover:bg-[#E5E7EB] dark:hover:bg-[#27272A] rounded cursor-pointer"
                               title="Cancel"
                             >
                               <X className="w-3.5 h-3.5" />
@@ -304,7 +304,7 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
                           <select
                             value={editingCategory}
                             onChange={(e) => setEditingCategory(e.target.value as HabitCategory)}
-                            className="text-[11px] border border-[#D4D4D8] rounded px-1.5 py-0.5 bg-white text-[#111111]"
+                            className="text-[11px] border border-[#D4D4D8] dark:border-[#27272A] rounded px-1.5 py-0.5 bg-white dark:bg-[#18181B] text-[#111111] dark:text-white"
                           >
                             <option value="health">🏃 Health & Exercise</option>
                             <option value="pray">🤲 Pray & Mindfulness</option>
@@ -323,13 +323,13 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
                           </span>
                           <span
                             onDoubleClick={() => startRename(habit)}
-                            className="font-medium text-[#111111] select-text cursor-pointer hover:underline underline-offset-2 flex-1 truncate"
+                            className="font-medium text-[#111111] dark:text-zinc-100 select-text cursor-pointer hover:underline underline-offset-2 flex-1 truncate"
                             title="Double-click to rename"
                           >
                             {habit.name}
                           </span>
                           {isPerfect && (
-                            <span className="inline-flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-1 py-0.2 rounded border border-amber-300">
+                            <span className="inline-flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/50 px-1 py-0.2 rounded border border-amber-300 dark:border-amber-800/60">
                               7/7 Streak
                             </span>
                           )}
@@ -344,7 +344,7 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
                         <td
                           key={info.dayIndex}
                           className={`py-2 px-1 text-center ${
-                            info.isToday ? 'bg-amber-50/40' : ''
+                            info.isToday ? 'bg-amber-50/40 dark:bg-amber-950/20' : ''
                           }`}
                         >
                           <button
@@ -352,10 +352,10 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
                             role="checkbox"
                             aria-checked={isChecked}
                             onClick={() => onToggleHabitDay(habit.id, info.dayIndex)}
-                            className={`w-5 h-5 mx-auto rounded border flex items-center justify-center transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111111] ${
+                            className={`w-5 h-5 mx-auto rounded border flex items-center justify-center transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111111] dark:focus-visible:ring-white ${
                               isChecked
-                                ? 'bg-[#111111] border-[#111111] text-white shadow-xs'
-                                : 'bg-white border-[#D4D4D8] hover:border-[#71717A] text-transparent'
+                                ? 'bg-[#111111] dark:bg-white border-[#111111] dark:border-white text-white dark:text-[#111111] shadow-xs'
+                                : 'bg-white dark:bg-[#18181B] border-[#D4D4D8] dark:border-[#3F3F46] hover:border-[#71717A] text-transparent'
                             }`}
                             title={`${habit.name} - ${info.dayName}: ${
                               isChecked ? 'Completed' : 'Click to complete'
@@ -370,19 +370,19 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
                     {/* Score / Progress Bar */}
                     <td className="py-2.5 px-3 text-center">
                       <div className="flex items-center justify-center gap-1.5">
-                        <div className="w-12 bg-[#F4F4F5] h-1.5 rounded-full overflow-hidden shrink-0">
+                        <div className="w-12 bg-[#F4F4F5] dark:bg-[#27272A] h-1.5 rounded-full overflow-hidden shrink-0">
                           <div
                             className={`h-full transition-all duration-300 ${
                               progress === 100
                                 ? 'bg-emerald-600'
                                 : progress >= 70
-                                ? 'bg-[#111111]'
+                                ? 'bg-[#111111] dark:bg-white'
                                 : 'bg-[#A1A1AA]'
                             }`}
                             style={{ width: `${progress}%` }}
                           />
                         </div>
-                        <span className="font-mono text-xs font-semibold tabular-nums text-[#111111] w-8 text-right">
+                        <span className="font-mono text-xs font-semibold tabular-nums text-[#111111] dark:text-white w-8 text-right">
                           {progress}%
                         </span>
                       </div>
@@ -396,7 +396,7 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
                             <button
                               type="button"
                               onClick={() => onMoveHabit(index, 'up')}
-                              className="p-1 text-[#A1A1AA] hover:text-[#111111] hover:bg-[#E5E7EB] rounded cursor-pointer"
+                              className="p-1 text-[#A1A1AA] hover:text-[#111111] dark:hover:text-white hover:bg-[#E5E7EB] dark:hover:bg-[#27272A] rounded cursor-pointer"
                               title="Move up"
                               aria-label="Move habit up"
                             >
@@ -407,7 +407,7 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
                             <button
                               type="button"
                               onClick={() => onMoveHabit(index, 'down')}
-                              className="p-1 text-[#A1A1AA] hover:text-[#111111] hover:bg-[#E5E7EB] rounded cursor-pointer"
+                              className="p-1 text-[#A1A1AA] hover:text-[#111111] dark:hover:text-white hover:bg-[#E5E7EB] dark:hover:bg-[#27272A] rounded cursor-pointer"
                               title="Move down"
                               aria-label="Move habit down"
                             >
@@ -417,7 +417,7 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
                           <button
                             type="button"
                             onClick={() => startRename(habit)}
-                            className="p-1 text-[#71717A] hover:text-[#111111] hover:bg-[#E5E7EB] rounded cursor-pointer"
+                            className="p-1 text-[#71717A] hover:text-[#111111] dark:hover:text-white hover:bg-[#E5E7EB] dark:hover:bg-[#27272A] rounded cursor-pointer"
                             title="Edit habit"
                             aria-label="Edit habit"
                           >
@@ -426,7 +426,7 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
                           <button
                             type="button"
                             onClick={() => onDeleteHabit(habit.id)}
-                            className="p-1 text-[#71717A] hover:text-[#DC2626] hover:bg-[#FEE2E2] rounded cursor-pointer"
+                            className="p-1 text-[#71717A] hover:text-[#DC2626] hover:bg-[#FEE2E2] dark:hover:bg-red-950/40 rounded cursor-pointer"
                             title="Delete habit"
                             aria-label="Delete habit"
                           >
@@ -444,14 +444,14 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
       </div>
 
       {/* Add New Habit Form */}
-      <form onSubmit={handleCreateHabit} className="mt-4 pt-3.5 border-t border-[#F4F4F5]">
+      <form onSubmit={handleCreateHabit} className="mt-4 pt-3.5 border-t border-[#F4F4F5] dark:border-[#27272A]">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           {/* Category Select */}
           <div className="sm:w-48 shrink-0">
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value as HabitCategory)}
-              className="w-full text-xs font-semibold text-[#111111] bg-[#F8F9FA] border border-[#E5E7EB] rounded-lg px-2.5 py-2 focus:outline-none focus:border-[#111111] cursor-pointer"
+              className="w-full text-xs font-semibold text-[#111111] dark:text-white bg-[#F8F9FA] dark:bg-[#121214] border border-[#E5E7EB] dark:border-[#27272A] rounded-lg px-2.5 py-2 focus:outline-none focus:border-[#111111] dark:focus:border-white cursor-pointer"
             >
               <option value="health">🏃 Health & Exercise</option>
               <option value="pray">🤲 Pray & Mindfulness</option>
@@ -469,12 +469,12 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
               value={newHabitName}
               onChange={(e) => setNewHabitName(e.target.value)}
               placeholder="e.g. 5 Daily Prayers, 10k Steps, Read 20 pages..."
-              className="w-full text-xs text-[#111111] bg-[#F8F9FA] hover:bg-white focus:bg-white border border-[#E5E7EB] focus:border-[#111111] rounded-lg px-3 py-2 transition-colors focus:outline-none placeholder:text-[#A1A1AA]"
+              className="w-full text-xs text-[#111111] dark:text-white bg-[#F8F9FA] dark:bg-[#121214] hover:bg-white dark:hover:bg-[#18181B] focus:bg-white dark:focus:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] focus:border-[#111111] dark:focus:border-white rounded-lg px-3 py-2 transition-colors focus:outline-none placeholder:text-[#A1A1AA]"
             />
             <button
               type="submit"
               disabled={!newHabitName.trim()}
-              className="inline-flex items-center gap-1 px-3 py-2 bg-[#111111] text-white disabled:bg-[#E5E7EB] disabled:text-[#A1A1AA] hover:bg-[#27272A] rounded-lg text-xs font-semibold transition-colors shrink-0 cursor-pointer shadow-xs"
+              className="inline-flex items-center gap-1 px-3 py-2 bg-[#111111] dark:bg-white text-white dark:text-[#111111] disabled:bg-[#E5E7EB] dark:disabled:bg-[#27272A] disabled:text-[#A1A1AA] hover:bg-[#27272A] dark:hover:bg-zinc-200 rounded-lg text-xs font-semibold transition-colors shrink-0 cursor-pointer shadow-xs"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add Habit</span>

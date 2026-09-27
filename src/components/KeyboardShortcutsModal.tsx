@@ -39,49 +39,47 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="shortcuts-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
     >
-      <div className="bg-white border border-[#E5E7EB] rounded-lg max-w-md w-full p-5 sm:p-6 shadow-xl relative animate-in fade-in zoom-in-95 duration-150">
+      <div className="bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] rounded-xl max-w-md w-full p-5 sm:p-6 shadow-xl relative animate-in fade-in zoom-in-95 duration-150">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1 text-[#71717A] hover:text-[#111111] hover:bg-[#F4F4F5] rounded"
+          className="absolute top-4 right-4 p-1 text-[#71717A] dark:text-[#A1A1AA] hover:text-[#111111] dark:hover:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#27272A] rounded cursor-pointer"
           aria-label="Close dialog"
         >
           <X className="w-4 h-4" />
         </button>
 
         <div className="flex items-center gap-2.5 mb-2">
-          <span className="p-2 bg-[#F4F4F5] text-[#111111] rounded-md">
+          <span className="p-2 bg-[#F4F4F5] dark:bg-[#27272A] text-[#111111] dark:text-white rounded-lg">
             <Keyboard className="w-4 h-4" />
           </span>
           <div>
-            <h3 id="shortcuts-title" className="text-base font-bold text-[#111111]">
+            <h3 id="shortcuts-title" className="text-base font-bold text-[#111111] dark:text-white">
               Keyboard Shortcuts
             </h3>
-            <p className="text-xs text-[#71717A]">
-              Power-user navigation for instant workflow
+            <p className="text-xs text-[#71717A] dark:text-[#A1A1AA]">
+              Speed up your daily planning and navigation
             </p>
           </div>
         </div>
 
-        <div className="mt-4 divide-y divide-[#F4F4F5]">
-          {shortcuts.map((s, idx) => (
-            <div
-              key={idx}
-              className="py-2.5 flex items-center justify-between gap-4 text-xs"
-            >
-              <span className="text-[#52525B]">{s.desc}</span>
-              <kbd className="px-2 py-1 font-mono text-[11px] font-semibold text-[#111111] bg-[#F4F4F5] border border-[#E5E7EB] rounded shadow-2xs whitespace-nowrap">
-                {s.key}
+        <div className="mt-4 divide-y divide-[#F4F4F5] dark:divide-[#27272A] text-xs">
+          {shortcuts.map((item) => (
+            <div key={item.key} className="py-2 flex items-center justify-between gap-3">
+              <span className="text-[#52525B] dark:text-zinc-200">{item.desc}</span>
+              <kbd className="font-mono text-[11px] bg-[#F4F4F5] dark:bg-[#27272A] border border-[#E5E7EB] dark:border-[#3F3F46] text-[#111111] dark:text-white px-2 py-0.5 rounded shadow-2xs font-semibold shrink-0">
+                {item.key}
               </kbd>
             </div>
           ))}
         </div>
 
-        <div className="mt-5 pt-3 border-t border-[#F4F4F5] flex justify-end">
+        <div className="mt-5 pt-3 border-t border-[#F4F4F5] dark:border-[#27272A] flex justify-end">
           <button
+            type="button"
             onClick={onClose}
-            className="px-4 py-1.5 text-xs font-semibold bg-[#111111] text-white hover:bg-[#27272A] rounded transition-colors"
+            className="px-3.5 py-1.5 text-xs font-semibold bg-[#111111] dark:bg-white text-white dark:text-[#111111] rounded-lg cursor-pointer"
           >
             Got it
           </button>

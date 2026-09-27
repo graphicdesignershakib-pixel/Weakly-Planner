@@ -6,6 +6,11 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Header } from './components/Header';
 import { MotivationalBanner } from './components/MotivationalBanner';
+import { DailyVerseCard } from './components/DailyVerseCard';
+import { WaterTracker } from './components/WaterTracker';
+import { BadgesShowcase } from './components/BadgesShowcase';
+import { PomodoroTimer } from './components/PomodoroTimer';
+import { LifeBalanceScore } from './components/LifeBalanceScore';
 import { WeeklyFocusReward } from './components/WeeklyFocusReward';
 import { WeeklyStatsSummary } from './components/WeeklyStatsSummary';
 import { WeekNavigation } from './components/WeekNavigation';
@@ -18,6 +23,10 @@ import { ResetModal } from './components/ResetModal';
 import { BackupModal } from './components/BackupModal';
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { PrintModal } from './components/PrintModal';
+import { WeeklyAchievementCardModal } from './components/WeeklyAchievementCardModal';
+import { UserProfileModal } from './components/UserProfileModal';
+import { BoxBreathingModal } from './components/BoxBreathingModal';
+import { CommandPaletteModal } from './components/CommandPaletteModal';
 import {
   PlannerState,
   WeeklyReview as WeeklyReviewType,
@@ -25,6 +34,9 @@ import {
   MasterTodo,
   LongTermGoal,
   ShortTermGoal,
+  DayMood,
+  DayPrayers,
+  UserProfile,
 } from './types/planner';
 import {
   getMondayOfWeek,
@@ -57,13 +69,63 @@ export default function App() {
     plannerStorage.load(initialWeekStart)
   );
 
+  // User Profile personalization
+  const [userProfile, setUserProfile] = useState<UserProfile>(() => {
+    try {
+      const saved = localStorage.getItem('weekly_planner_user_profile');
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // ignore
+    }
+    return { name: 'Shakib', tagline: 'Creator & Architect' };
+  });
+
+  const handleSaveProfile = useCallback((profile: UserProfile) => {
+    setUserProfile(profile);
+    try {
+      localStorage.setItem('weekly_planner_user_profile', JSON.stringify(profile));
+    } catch {
+      // ignore
+    }
+    setToastMessage(`Welcome, ${profile.name}! Profile updated ✨`);
+    setTimeout(() => setToastMessage(null), 2500);
+  }, []);
+
   const [activeDayIndex, setActiveDayIndex] = useState<number | null>(null);
   const [lastSavedText, setLastSavedText] = useState<string>('just now');
   const [isResetModalOpen, setIsResetModalOpen] = useState<boolean>(false);
   const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState<boolean>(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState<boolean>(false);
+  const [isAchievementModalOpen, setIsAchievementModalOpen] = useState<boolean>(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState<boolean>(false);
+  const [isBreathingModalOpen, setIsBreathingModalOpen] = useState<boolean>(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
   const [backupModalMode, setBackupModalMode] = useState<'export' | 'import' | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Dark Mode State
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('weekly_planner_dark_mode') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    try {
+      localStorage.setItem('weekly_planner_dark_mode', isDarkMode ? 'true' : 'false');
+    } catch {
+      // ignore
+    }
+  }, [isDarkMode]);
+
+  const handleToggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
   // Show random encouraging toast
   const triggerEncouragement = useCallback(() => {
@@ -146,6 +208,8 @@ export default function App() {
             date: info.dateStr,
             note: '',
             tasks: [],
+            waterGlasses: 0,
+            winOfTheDay: '',
           }
         );
       });
@@ -153,7 +217,7 @@ export default function App() {
     [daysInfo]
   );
 
-  // Daily Task handlers using dayIndex for guaranteed alignment
+  // Daily Task handlers with time-blocking
   const handleToggleTask = useCallback(
     (dayIndex: number, taskId: string) => {
       setPlannerState((prev) => {
@@ -182,12 +246,13 @@ export default function App() {
   );
 
   const handleAddTask = useCallback(
-    (dayIndex: number, title: string) => {
+    (dayIndex: number, title: string, time?: string) => {
       const newTask = {
         id: `task-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
         title,
         completed: false,
         priority: 'normal' as const,
+        time,
       };
 
       setPlannerState((prev) => {
@@ -208,7 +273,7 @@ export default function App() {
   );
 
   const handleEditTask = useCallback(
-    (dayIndex: number, taskId: string, newTitle: string) => {
+    (dayIndex: number, taskId: string, newTitle: string, newTime?: string) => {
       setPlannerState((prev) => {
         const days = ensureDays(prev.days);
         return {
@@ -218,7 +283,7 @@ export default function App() {
             return {
               ...day,
               tasks: day.tasks.map((task) =>
-                task.id === taskId ? { ...task, title: newTitle } : task
+                task.id === taskId ? { ...task, title: newTitle, time: newTime } : task
               ),
             };
           }),
@@ -308,6 +373,83 @@ export default function App() {
           days: days.map((day, idx) => (idx === dayIndex ? { ...day, note } : day)),
         };
       });
+    },
+    [ensureDays]
+  );
+
+  // Daily Mood check-in
+  const handleUpdateMood = useCallback(
+    (dayIndex: number, mood: DayMood) => {
+      setPlannerState((prev) => {
+        const days = ensureDays(prev.days);
+        return {
+          ...prev,
+          days: days.map((day, idx) => (idx === dayIndex ? { ...day, mood } : day)),
+        };
+      });
+    },
+    [ensureDays]
+  );
+
+  // Daily 5 Prayers toggle
+  const handleTogglePrayer = useCallback(
+    (dayIndex: number, prayer: keyof DayPrayers) => {
+      setPlannerState((prev) => {
+        const days = ensureDays(prev.days);
+        const day = days[dayIndex];
+        const prevPrayers = day?.prayers || { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false };
+        const willBeChecked = !prevPrayers[prayer];
+        if (willBeChecked) {
+          playTaskCompleteSound();
+          triggerEncouragement();
+        }
+        return {
+          ...prev,
+          days: days.map((d, idx) => {
+            if (idx !== dayIndex) return d;
+            return {
+              ...d,
+              prayers: {
+                ...prevPrayers,
+                [prayer]: willBeChecked,
+              },
+            };
+          }),
+        };
+      });
+    },
+    [ensureDays, triggerEncouragement]
+  );
+
+  // Daily Water Tracker update
+  const handleUpdateWater = useCallback(
+    (dayIndex: number, glasses: number) => {
+      setPlannerState((prev) => {
+        const days = ensureDays(prev.days);
+        return {
+          ...prev,
+          days: days.map((d, idx) => (idx === dayIndex ? { ...d, waterGlasses: glasses } : d)),
+        };
+      });
+    },
+    [ensureDays]
+  );
+
+  // Daily Win of the Day
+  const handleUpdateWin = useCallback(
+    (dayIndex: number, win: string) => {
+      setPlannerState((prev) => {
+        const days = ensureDays(prev.days);
+        return {
+          ...prev,
+          days: days.map((d, idx) => (idx === dayIndex ? { ...d, winOfTheDay: win } : d)),
+        };
+      });
+      if (win.trim()) {
+        fireConfetti();
+        setToastMessage('🏆 Daily Win Recorded! Keep shining!');
+        setTimeout(() => setToastMessage(null), 2500);
+      }
     },
     [ensureDays]
   );
@@ -432,9 +574,7 @@ export default function App() {
 
   const handleAssignTodoToDay = useCallback(
     (todo: MasterTodo, dayIndex: number) => {
-      // Add as task into day
       handleAddTask(dayIndex, todo.title);
-      // Mark todo as completed in master list
       setPlannerState((prev) => ({
         ...prev,
         masterTodos: (prev.masterTodos || []).map((t) =>
@@ -604,6 +744,13 @@ export default function App() {
   // Global Keyboard Shortcuts
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Spotlight Search (Ctrl+K or Cmd+K)
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+        return;
+      }
+
       const target = e.target as HTMLElement | null;
       const isInputFocused =
         target &&
@@ -674,17 +821,22 @@ export default function App() {
     0
   );
 
+  // Today or active day index for Water Tracker
+  const todayIdx = daysInfo.findIndex((d) => d.isToday);
+  const selectedDayForWater = activeDayIndex !== null ? activeDayIndex : (todayIdx !== -1 ? todayIdx : 0);
+  const currentWaterGlasses = plannerState.days[selectedDayForWater]?.waterGlasses || 0;
+
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-[#111111] flex flex-col font-sans relative">
+    <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#09090B] text-[#111111] dark:text-zinc-100 flex flex-col font-sans transition-colors relative">
       {/* Toast Notification for Encouragement & Actions */}
       {toastMessage && (
-        <div className="fixed top-20 right-6 z-50 bg-[#111111] text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 border border-white/20 animate-in slide-in-from-top-4 duration-200">
-          <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+        <div className="fixed top-20 right-6 z-50 bg-[#111111] dark:bg-white text-white dark:text-[#111111] px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 border border-white/20 dark:border-black/20 animate-in slide-in-from-top-4 duration-200">
+          <Sparkles className="w-4 h-4 text-amber-400 dark:text-amber-500 shrink-0" />
           <span className="text-xs font-bold tracking-wide">{toastMessage}</span>
         </div>
       )}
 
-      {/* Top Header */}
+      {/* Top Header with User Persona & Shortcuts */}
       <Header
         weekStart={currentWeekStart}
         onPrevWeek={handlePrevWeek}
@@ -696,7 +848,15 @@ export default function App() {
         onImport={() => setBackupModalMode('import')}
         onPrint={handlePrint}
         onOpenShortcuts={() => setIsShortcutsModalOpen(true)}
+        onOpenAchievementCard={() => setIsAchievementModalOpen(true)}
+        onOpenBreathing={() => setIsBreathingModalOpen(true)}
+        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+        onOpenProfile={() => setIsProfileModalOpen(true)}
+        userName={userProfile.name}
+        userTagline={userProfile.tagline}
         lastSavedText={lastSavedText}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={handleToggleDarkMode}
       />
 
       {/* Main Container */}
@@ -708,6 +868,22 @@ export default function App() {
           habitStreakCount={habitStreakCount}
         />
 
+        {/* Feature #5: Daily Quran Verse / Spiritual Anchor */}
+        <DailyVerseCard />
+
+        {/* Feature #4: Daily Hydration Tracker (2 Liters Target) */}
+        <WaterTracker
+          currentGlasses={currentWaterGlasses}
+          onUpdateGlasses={(glasses) => handleUpdateWater(selectedDayForWater, glasses)}
+          dayLabel={daysInfo[selectedDayForWater]?.dayName || 'Today'}
+        />
+
+        {/* Unlockable Badges Showcase & Trophy Room */}
+        <BadgesShowcase plannerState={plannerState} />
+
+        {/* Pomodoro Focus & Synthesized Ambient Sound Station */}
+        <PomodoroTimer />
+
         {/* Weekly Focus & Reward Section */}
         <WeeklyFocusReward
           weekStart={currentWeekStart}
@@ -716,6 +892,12 @@ export default function App() {
           reward={plannerState.reward}
           onUpdateFocus={handleUpdateFocus}
           onUpdateReward={handleUpdateReward}
+        />
+
+        {/* Life Balance & 5 Pillars Holistic Radar Index */}
+        <LifeBalanceScore
+          habits={plannerState.habits}
+          days={plannerState.days}
         />
 
         {/* Overall Progress & 7-Day Completion Bar Chart */}
@@ -735,7 +917,7 @@ export default function App() {
           onSelectDay={handleSelectDay}
         />
 
-        {/* 7-Day Planner Grid (Monday - Sunday) */}
+        {/* 7-Day Planner Grid (with Time-blocking, Daily Win & Salah & Water) */}
         <DailyPlanner
           daysInfo={daysInfo}
           days={plannerState.days}
@@ -747,6 +929,10 @@ export default function App() {
           onMoveTask={handleMoveTask}
           onTogglePriority={handleTogglePriority}
           onUpdateNote={handleUpdateNote}
+          onUpdateMood={handleUpdateMood}
+          onTogglePrayer={handleTogglePrayer}
+          onUpdateWater={handleUpdateWater}
+          onUpdateWin={handleUpdateWin}
         />
 
         {/* Master To-Do & Backlog Quick Capture */}
@@ -792,11 +978,11 @@ export default function App() {
       </main>
 
       {/* Editorial Footer */}
-      <footer className="border-t border-[#E5E7EB] bg-white py-4 px-4 sm:px-6 text-center text-xs text-[#71717A]">
+      <footer className="border-t border-[#E5E7EB] dark:border-[#27272A] bg-white dark:bg-[#18181B] py-4 px-4 sm:px-6 text-center text-xs text-[#71717A] dark:text-[#A1A1AA] transition-colors">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Weekly Life Planner · Swiss Editorial Productivity Workspace</span>
-          <span className="font-mono text-[11px] text-[#A1A1AA]">
-            Data saved locally in browser · Press ? for shortcuts
+          <span>Weekly Life Planner · Built for {userProfile.name}</span>
+          <span className="font-mono text-[11px] text-[#A1A1AA] dark:text-[#71717A]">
+            Data saved locally in browser · Press ⌘K or ? for shortcuts
           </span>
         </div>
       </footer>
@@ -826,6 +1012,41 @@ export default function App() {
         onClose={() => setIsPrintModalOpen(false)}
         state={plannerState}
         daysInfo={daysInfo}
+      />
+
+      {/* Feature #3: Weekly Achievement Card Export Modal */}
+      <WeeklyAchievementCardModal
+        isOpen={isAchievementModalOpen}
+        onClose={() => setIsAchievementModalOpen(false)}
+        state={plannerState}
+        daysInfo={daysInfo}
+      />
+
+      {/* User Personalization Modal */}
+      <UserProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        profile={userProfile}
+        onSaveProfile={handleSaveProfile}
+      />
+
+      {/* 1-Min Box Breathing Mindfulness Modal */}
+      <BoxBreathingModal
+        isOpen={isBreathingModalOpen}
+        onClose={() => setIsBreathingModalOpen(false)}
+      />
+
+      {/* Spotlight Command Palette (Ctrl+K) */}
+      <CommandPaletteModal
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        state={plannerState}
+        daysInfo={daysInfo}
+        onSelectDay={handleSelectDay}
+        onQuickAddTask={(dayIdx, title) => handleAddTask(dayIdx, title)}
+        onOpenBreathing={() => setIsBreathingModalOpen(true)}
+        onOpenAchievement={() => setIsAchievementModalOpen(true)}
+        onOpenProfile={() => setIsProfileModalOpen(true)}
       />
     </div>
   );

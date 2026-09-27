@@ -47,186 +47,135 @@ export const WeeklyStatsSummary: React.FC<WeeklyStatsSummaryProps> = ({
   });
 
   return (
-    <div className="bg-white border border-[#E5E7EB] rounded-lg p-4 sm:p-5">
+    <div className="bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] rounded-xl p-4 sm:p-5 transition-colors shadow-xs">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
         {/* Metric Cards (5 cols on large desktop) */}
         <div className="lg:col-span-5 grid grid-cols-2 gap-3">
           {/* Task Completion Percentage */}
-          <div className="bg-[#F8F9FA] border border-[#E5E7EB] p-3.5 rounded-lg">
-            <div className="flex items-center justify-between text-[#71717A] mb-1">
+          <div className="bg-[#F8F9FA] dark:bg-[#121214] border border-[#E5E7EB] dark:border-[#27272A] p-3.5 rounded-lg transition-colors">
+            <div className="flex items-center justify-between text-[#71717A] dark:text-[#A1A1AA] mb-1">
               <span className="text-[11px] font-bold uppercase tracking-wider">
                 Tasks Done
               </span>
-              <CheckSquare className="w-3.5 h-3.5 text-[#111111]" />
+              <CheckSquare className="w-3.5 h-3.5 text-[#111111] dark:text-white" />
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#111111] tabular-nums tracking-tight">
+            <div className="flex items-baseline justify-between mt-2">
+              <span className="text-2xl sm:text-3xl font-extrabold text-[#111111] dark:text-white tabular-nums tracking-tight">
                 {taskProgress.percentage}%
               </span>
-              <span className="text-xs text-[#71717A] tabular-nums font-mono">
+              <span className="text-xs text-[#71717A] dark:text-[#A1A1AA] font-mono">
                 {taskProgress.completed}/{taskProgress.total}
               </span>
             </div>
-            {/* Visual thin progress track */}
-            <div className="w-full bg-[#E5E7EB] h-1.5 rounded-full mt-2 overflow-hidden">
+            <div className="w-full bg-[#E5E7EB] dark:bg-[#27272A] h-1.5 rounded-full overflow-hidden mt-2.5">
               <div
-                className="bg-[#111111] h-full transition-all duration-300 rounded-full"
-                style={{ width: `${Math.min(100, Math.max(0, taskProgress.percentage))}%` }}
+                className="bg-[#111111] dark:bg-white h-full rounded-full transition-all duration-300"
+                style={{ width: `${taskProgress.percentage}%` }}
               />
             </div>
           </div>
 
           {/* Habit Consistency Percentage */}
-          <div className="bg-[#F8F9FA] border border-[#E5E7EB] p-3.5 rounded-lg">
-            <div className="flex items-center justify-between text-[#71717A] mb-1">
+          <div className="bg-[#F8F9FA] dark:bg-[#121214] border border-[#E5E7EB] dark:border-[#27272A] p-3.5 rounded-lg transition-colors">
+            <div className="flex items-center justify-between text-[#71717A] dark:text-[#A1A1AA] mb-1">
               <span className="text-[11px] font-bold uppercase tracking-wider">
-                Habit Consistency
+                Habit Streak
               </span>
-              <Flame className="w-3.5 h-3.5 text-[#111111]" />
+              <Flame className="w-3.5 h-3.5 text-amber-500" />
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#111111] tabular-nums tracking-tight">
+            <div className="flex items-baseline justify-between mt-2">
+              <span className="text-2xl sm:text-3xl font-extrabold text-[#111111] dark:text-white tabular-nums tracking-tight">
                 {habitProgress.percentage}%
               </span>
-              <span className="text-xs text-[#71717A] tabular-nums font-mono">
+              <span className="text-xs text-[#71717A] dark:text-[#A1A1AA] font-mono">
                 {habitProgress.completed}/{habitProgress.total}
               </span>
             </div>
-            <div className="w-full bg-[#E5E7EB] h-1.5 rounded-full mt-2 overflow-hidden">
+            <div className="w-full bg-[#E5E7EB] dark:bg-[#27272A] h-1.5 rounded-full overflow-hidden mt-2.5">
               <div
-                className="bg-[#111111] h-full transition-all duration-300 rounded-full"
-                style={{ width: `${Math.min(100, Math.max(0, habitProgress.percentage))}%` }}
+                className="bg-amber-500 h-full rounded-full transition-all duration-300"
+                style={{ width: `${habitProgress.percentage}%` }}
               />
             </div>
           </div>
-
-          {/* Week Overview Stat 3 */}
-          <div className="bg-[#F8F9FA] border border-[#E5E7EB] p-3.5 rounded-lg">
-            <div className="flex items-center justify-between text-[#71717A] mb-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider">
-                Active Habits
-              </span>
-              <TrendingUp className="w-3.5 h-3.5 text-[#111111]" />
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl font-extrabold text-[#111111] tabular-nums">
-                {habits.length}
-              </span>
-              <span className="text-xs text-[#71717A]">habits tracked</span>
-            </div>
-            <p className="text-[10px] text-[#A1A1AA] mt-1 truncate">
-              Daily repetition metric
-            </p>
-          </div>
-
-          {/* Week Overview Stat 4 */}
-          <div className="bg-[#F8F9FA] border border-[#E5E7EB] p-3.5 rounded-lg">
-            <div className="flex items-center justify-between text-[#71717A] mb-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider">
-                Total Planned
-              </span>
-              <BarChart3 className="w-3.5 h-3.5 text-[#111111]" />
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl font-extrabold text-[#111111] tabular-nums">
-                {taskProgress.total}
-              </span>
-              <span className="text-xs text-[#71717A]">items this week</span>
-            </div>
-            <p className="text-[10px] text-[#A1A1AA] mt-1 truncate">
-              Across 7 calendar days
-            </p>
-          </div>
         </div>
 
-        {/* 7-Day Completion Bar Chart (7 cols on desktop) */}
-        <div className="lg:col-span-7 bg-[#FAFAFA] border border-[#E5E7EB] p-4 rounded-lg flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#111111]">
+        {/* 7-Day Completion Bar Chart (7 cols on large desktop) */}
+        <div className="lg:col-span-7 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <BarChart3 className="w-4 h-4 text-[#71717A] dark:text-[#A1A1AA]" />
+              <span className="text-xs font-bold text-[#111111] dark:text-white uppercase tracking-wider">
                 7-Day Task Completion
               </span>
-              <span className="text-[11px] text-[#71717A]">
-                · Click day to jump
-              </span>
             </div>
-            <div className="text-[11px] font-mono text-[#71717A] tabular-nums">
-              Avg: {Math.round(dailyStats.reduce((acc, d) => acc + d.progress, 0) / 7)}%
-            </div>
+            <span className="text-[11px] text-[#71717A] dark:text-[#A1A1AA]">
+              Click a day bar to scroll to that day
+            </span>
           </div>
 
-          {/* Chart Canvas */}
-          <div className="relative pt-4 pb-1">
-            {/* Guide lines (100%, 50%, 0%) */}
-            <div className="absolute inset-x-0 top-4 bottom-8 flex flex-col justify-between pointer-events-none opacity-40">
-              <div className="border-b border-dashed border-[#D4D4D8] w-full text-[9px] font-mono text-[#71717A] pr-1 text-right">
-                100%
-              </div>
-              <div className="border-b border-dashed border-[#D4D4D8] w-full text-[9px] font-mono text-[#71717A] pr-1 text-right">
-                50%
-              </div>
-              <div className="border-b border-[#D4D4D8] w-full text-[9px] font-mono text-[#71717A] pr-1 text-right">
-                0%
-              </div>
-            </div>
+          {/* Bar Chart Container */}
+          <div className="grid grid-cols-7 gap-2 items-end h-28 pt-2 pb-1 border-b border-[#F4F4F5] dark:border-[#27272A]">
+            {dailyStats.map((item) => {
+              const heightPct = Math.max(10, item.progress);
 
-            {/* 7 Vertical Bars */}
-            <div className="grid grid-cols-7 gap-1.5 sm:gap-2 h-36 items-end relative z-10 px-1">
-              {dailyStats.map((item) => (
+              return (
                 <button
                   key={item.dayIndex}
-                  onClick={() => onSelectDay(item.dayIndex)}
                   type="button"
-                  aria-label={`${item.dayAbbr}: ${item.progress}% completed (${item.completedTasks}/${item.totalTasks} tasks)`}
-                  className={`group flex flex-col items-center h-full justify-end rounded p-1 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111111] ${
+                  onClick={() => onSelectDay(item.dayIndex)}
+                  className={`flex flex-col items-center justify-end h-full group focus:outline-none rounded transition-all cursor-pointer ${
                     item.isActive
-                      ? 'bg-white shadow-xs border border-[#111111]'
-                      : 'hover:bg-white border border-transparent'
+                      ? 'bg-[#F4F4F5] dark:bg-[#27272A] p-1'
+                      : 'hover:bg-[#F8F9FA] dark:hover:bg-[#202024] p-1'
                   }`}
+                  title={`${item.dayAbbr}: ${item.progress}% (${item.completedTasks}/${item.totalTasks} tasks)`}
                 >
-                  {/* Top percentage pill / text */}
+                  {/* Percentage on hover or active */}
                   <span
-                    className={`text-[10px] font-bold tabular-nums font-mono mb-1 transition-colors ${
-                      item.progress > 0 ? 'text-[#111111]' : 'text-[#A1A1AA]'
-                    } ${item.isActive ? 'text-[#111111] font-extrabold' : ''}`}
+                    className={`text-[10px] font-mono font-semibold mb-1 transition-opacity ${
+                      item.isActive
+                        ? 'opacity-100 text-[#111111] dark:text-white font-bold'
+                        : 'opacity-70 group-hover:opacity-100 text-[#71717A] dark:text-[#A1A1AA]'
+                    }`}
                   >
                     {item.progress}%
                   </span>
 
-                  {/* Bar pillar */}
-                  <div className="w-full max-w-[28px] bg-[#E5E7EB] rounded-t-sm h-20 flex items-end overflow-hidden p-0.5">
+                  {/* Vertical Bar */}
+                  <div className="w-full bg-[#E5E7EB] dark:bg-[#27272A] rounded-t-sm h-16 flex items-end overflow-hidden">
                     <div
-                      className={`w-full rounded-t-xs transition-all duration-300 ${
+                      className={`w-full transition-all duration-300 rounded-t-sm ${
                         item.progress === 100
-                          ? 'bg-[#111111]'
-                          : item.progress > 0
-                          ? 'bg-[#333333] group-hover:bg-[#111111]'
-                          : 'bg-transparent'
+                          ? 'bg-emerald-500'
+                          : item.isActive
+                          ? 'bg-[#111111] dark:bg-white'
+                          : 'bg-[#71717A] dark:bg-[#A1A1AA] group-hover:bg-[#111111] dark:group-hover:bg-white'
                       }`}
-                      style={{ height: `${Math.max(item.progress > 0 ? 8 : 0, item.progress)}%` }}
+                      style={{ height: `${heightPct}%` }}
                     />
                   </div>
-
-                  {/* Day Abbreviation */}
-                  <div className="mt-2 text-center">
-                    <span
-                      className={`text-xs font-bold block ${
-                        item.isActive
-                          ? 'text-[#111111] underline underline-offset-4 decoration-2'
-                          : item.isToday
-                          ? 'text-[#111111]'
-                          : 'text-[#52525B]'
-                      }`}
-                    >
-                      {item.dayAbbr}
-                    </span>
-                    <span className="text-[9px] text-[#71717A] tabular-nums block font-mono">
-                      {item.completedTasks}/{item.totalTasks}
-                    </span>
-                  </div>
                 </button>
-              ))}
-            </div>
+              );
+            })}
+          </div>
+
+          {/* Day Labels below chart */}
+          <div className="grid grid-cols-7 gap-2 mt-1 text-center">
+            {dailyStats.map((item) => (
+              <span
+                key={item.dayIndex}
+                className={`text-[11px] font-semibold tracking-tight ${
+                  item.isToday
+                    ? 'text-[#111111] dark:text-white font-extrabold underline underline-offset-2'
+                    : item.isActive
+                    ? 'text-[#111111] dark:text-white font-bold'
+                    : 'text-[#71717A] dark:text-[#A1A1AA]'
+                }`}
+              >
+                {item.dayAbbr}
+              </span>
+            ))}
           </div>
         </div>
       </div>

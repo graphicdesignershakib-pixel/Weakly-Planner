@@ -33,7 +33,7 @@ export const CompletionRing: React.FC<CompletionRingProps> = ({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="#E5E7EB"
+          className="stroke-[#E5E7EB] dark:stroke-[#27272A]"
           strokeWidth={strokeWidth}
           fill="transparent"
         />
@@ -42,16 +42,19 @@ export const CompletionRing: React.FC<CompletionRingProps> = ({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="#111111"
+          className={`transition-all duration-300 ease-out ${
+            normalizedProgress === 100
+              ? 'stroke-emerald-500'
+              : 'stroke-[#111111] dark:stroke-white'
+          }`}
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
           fill="transparent"
-          className="transition-all duration-300 ease-out"
         />
       </svg>
-      <span className="absolute text-[11px] font-bold text-[#111111] tabular-nums font-mono">
+      <span className="absolute text-[11px] font-bold text-[#111111] dark:text-white tabular-nums font-mono">
         {normalizedProgress}%
       </span>
     </div>

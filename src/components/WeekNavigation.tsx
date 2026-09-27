@@ -21,7 +21,7 @@ export const WeekNavigation: React.FC<WeekNavigationProps> = ({
   return (
     <nav
       aria-label="Week day navigation"
-      className="bg-white border border-[#E5E7EB] rounded-lg p-2 overflow-x-auto custom-scrollbar"
+      className="bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] rounded-xl p-2 overflow-x-auto custom-scrollbar shadow-xs transition-colors"
     >
       <div className="grid grid-cols-7 min-w-[500px] sm:min-w-0 gap-1.5 sm:gap-2">
         {daysInfo.map((info) => {
@@ -35,16 +35,18 @@ export const WeekNavigation: React.FC<WeekNavigationProps> = ({
             <button
               key={info.dayIndex}
               onClick={() => onSelectDay(info.dayIndex)}
-              className={`flex flex-col items-center justify-center p-2 rounded-md transition-all text-center relative focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111111] ${
+              className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all text-center relative focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111111] dark:focus-visible:ring-white cursor-pointer ${
                 isActive
-                  ? 'bg-[#111111] text-white shadow-xs'
-                  : 'bg-[#F8F9FA] text-[#111111] hover:bg-[#F1F3F5] border border-transparent'
+                  ? 'bg-[#111111] text-white dark:bg-white dark:text-[#111111] shadow-xs'
+                  : 'bg-[#F8F9FA] dark:bg-[#121214] text-[#111111] dark:text-zinc-200 hover:bg-[#F1F3F5] dark:hover:bg-[#202024] border border-transparent'
               }`}
             >
               {/* Day abbreviation */}
               <span
                 className={`text-xs font-semibold ${
-                  isActive ? 'text-[#D4D4D8]' : 'text-[#71717A]'
+                  isActive
+                    ? 'text-[#D4D4D8] dark:text-[#52525B]'
+                    : 'text-[#71717A] dark:text-[#A1A1AA]'
                 }`}
               >
                 {info.dayAbbr}
@@ -59,34 +61,29 @@ export const WeekNavigation: React.FC<WeekNavigationProps> = ({
               <div className="flex items-center gap-1 mt-0.5">
                 <span
                   className={`text-[10px] font-mono tabular-nums ${
-                    isActive ? 'text-[#E4E4E7]' : 'text-[#52525B]'
+                    isActive
+                      ? 'text-[#D4D4D8] dark:text-[#52525B]'
+                      : progress === 100
+                      ? 'text-emerald-600 dark:text-emerald-400 font-bold'
+                      : 'text-[#71717A] dark:text-[#A1A1AA]'
                   }`}
                 >
-                  {completedTasks}/{totalTasks}
+                  {totalTasks > 0 ? `${completedTasks}/${totalTasks}` : '0'}
                 </span>
-                {totalTasks > 0 && (
-                  <span
-                    className={`w-1.5 h-1.5 rounded-full ${
-                      progress === 100
-                        ? isActive
-                          ? 'bg-emerald-400'
-                          : 'bg-emerald-600'
-                        : isActive
-                        ? 'bg-neutral-400'
-                        : 'bg-neutral-400'
-                    }`}
-                  />
+                {progress === 100 && totalTasks > 0 && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 )}
               </div>
 
-              {/* Indicator if Today */}
+              {/* Indicator dot for today */}
               {info.isToday && (
                 <span
-                  className={`text-[9px] uppercase tracking-wider font-extrabold mt-0.5 ${
-                    isActive ? 'text-amber-300' : 'text-amber-700'
+                  className={`absolute top-1 right-1.5 text-[9px] ${
+                    isActive ? 'text-amber-400 dark:text-amber-600' : 'text-amber-500'
                   }`}
+                  title="Today"
                 >
-                  Today
+                  ●
                 </span>
               )}
             </button>

@@ -31,85 +31,78 @@ export const ResetModal: React.FC<ResetModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="reset-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
     >
       <div
-        className="bg-white border border-[#E5E7EB] rounded-lg max-w-md w-full p-5 sm:p-6 shadow-xl relative animate-in fade-in zoom-in-95 duration-150"
+        className="bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] rounded-xl max-w-md w-full p-5 sm:p-6 shadow-xl relative animate-in fade-in zoom-in-95 duration-150"
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1 text-[#71717A] hover:text-[#111111] hover:bg-[#F4F4F5] rounded"
+          className="absolute top-4 right-4 p-1 text-[#71717A] dark:text-[#A1A1AA] hover:text-[#111111] dark:hover:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#27272A] rounded cursor-pointer"
           aria-label="Close dialog"
         >
           <X className="w-4 h-4" />
         </button>
 
         <div className="flex items-center gap-3 mb-3">
-          <span className="p-2 bg-[#FEE2E2] text-[#DC2626] rounded-full">
+          <span className="p-2 bg-[#FEE2E2] dark:bg-red-950/50 text-[#DC2626] dark:text-red-400 rounded-full">
             <AlertTriangle className="w-5 h-5" />
           </span>
           <div>
-            <h3 id="reset-modal-title" className="text-base font-bold text-[#111111]">
+            <h3 id="reset-modal-title" className="text-base font-bold text-[#111111] dark:text-white">
               Reset Current Week
             </h3>
-            <p className="text-xs text-[#71717A]">
+            <p className="text-xs text-[#71717A] dark:text-[#A1A1AA]">
               Choose how you want to reset this week's planner data.
             </p>
           </div>
         </div>
 
-        <p className="text-xs text-[#52525B] leading-relaxed my-4 bg-[#F8F9FA] p-3 rounded border border-[#E5E7EB]">
-          This action will overwrite your current daily tasks, habit checkmarks, and weekly review for this week.
-        </p>
-
-        <div className="space-y-2.5">
+        <div className="space-y-3 mt-4">
           <button
+            type="button"
             onClick={() => {
               onResetToSample();
               onClose();
             }}
-            className="w-full flex items-center justify-between p-3 border border-[#E5E7EB] hover:border-[#111111] rounded-md transition-colors text-left group"
+            className="w-full flex items-start gap-3 p-3 text-left border border-[#E5E7EB] dark:border-[#27272A] rounded-lg hover:border-[#111111] dark:hover:border-white hover:bg-[#FAFAFA] dark:hover:bg-[#202024] transition-colors cursor-pointer"
           >
+            <RotateCcw className="w-4 h-4 text-[#111111] dark:text-white mt-0.5 shrink-0" />
             <div>
-              <div className="text-xs font-bold text-[#111111] flex items-center gap-1.5">
-                <RotateCcw className="w-3.5 h-3.5 text-[#52525B] group-hover:text-[#111111]" />
-                Reset to Sample Planner Data
-              </div>
-              <p className="text-[11px] text-[#71717A] mt-0.5">
-                Restores standard sample schedule, daily habits, and review.
-              </p>
+              <span className="text-xs font-bold text-[#111111] dark:text-white block">
+                Load Sample Template
+              </span>
+              <span className="text-[11px] text-[#71717A] dark:text-[#A1A1AA]">
+                Populate this week with standard example tasks, habits, and review reflections.
+              </span>
             </div>
-            <span className="text-xs font-semibold text-[#111111] opacity-0 group-hover:opacity-100 transition-opacity">
-              Apply →
-            </span>
           </button>
 
           <button
+            type="button"
             onClick={() => {
               onClearToBlank();
               onClose();
             }}
-            className="w-full flex items-center justify-between p-3 border border-[#FEE2E2] hover:bg-[#FEF2F2] rounded-md transition-colors text-left group"
+            className="w-full flex items-start gap-3 p-3 text-left border border-[#FEE2E2] dark:border-red-950/40 rounded-lg hover:border-[#DC2626] bg-[#FEF2F2]/40 dark:bg-red-950/20 hover:bg-[#FEE2E2] dark:hover:bg-red-950/40 transition-colors cursor-pointer"
           >
+            <Trash2 className="w-4 h-4 text-[#DC2626] dark:text-red-400 mt-0.5 shrink-0" />
             <div>
-              <div className="text-xs font-bold text-[#DC2626] flex items-center gap-1.5">
-                <Trash2 className="w-3.5 h-3.5" />
+              <span className="text-xs font-bold text-[#DC2626] dark:text-red-400 block">
                 Clear to Blank Slate
-              </div>
-              <p className="text-[11px] text-[#71717A] mt-0.5">
-                Erases all tasks and starts with an empty week schedule.
-              </p>
+              </span>
+              <span className="text-[11px] text-[#991B1B] dark:text-red-300">
+                Wipe all daily tasks, focus notes, and review for this week.
+              </span>
             </div>
-            <span className="text-xs font-semibold text-[#DC2626] opacity-0 group-hover:opacity-100 transition-opacity">
-              Clear →
-            </span>
           </button>
         </div>
 
-        <div className="mt-5 pt-3 border-t border-[#F4F4F5] flex justify-end">
+        <div className="mt-5 pt-3 border-t border-[#F4F4F5] dark:border-[#27272A] flex justify-end">
           <button
+            type="button"
             onClick={onClose}
-            className="px-4 py-1.5 text-xs font-semibold text-[#52525B] hover:text-[#111111] hover:bg-[#F4F4F5] rounded transition-colors"
+            className="px-3 py-1.5 text-xs text-[#71717A] dark:text-[#A1A1AA] hover:text-[#111111] dark:hover:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#27272A] rounded cursor-pointer"
           >
             Cancel
           </button>
