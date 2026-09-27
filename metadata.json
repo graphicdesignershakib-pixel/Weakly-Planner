@@ -1,0 +1,6 @@
+{
+  "name": "Weekly Life Planner",
+  "description": "Swiss editorial weekly planning workspace with daily task management, seven-day habit tracking, progress analytics, and weekly review.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
