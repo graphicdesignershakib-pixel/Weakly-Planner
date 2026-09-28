@@ -27,6 +27,10 @@ import { WeeklyAchievementCardModal } from './components/WeeklyAchievementCardMo
 import { UserProfileModal } from './components/UserProfileModal';
 import { BoxBreathingModal } from './components/BoxBreathingModal';
 import { CommandPaletteModal } from './components/CommandPaletteModal';
+import { BrainDumpScratchpad } from './components/BrainDumpScratchpad';
+import { DailyRitualsModal } from './components/DailyRitualsModal';
+import { FutureLettersModal } from './components/FutureLettersModal';
+import { WeeklyWrappedModal } from './components/WeeklyWrappedModal';
 import {
   PlannerState,
   WeeklyReview as WeeklyReviewType,
@@ -37,6 +41,8 @@ import {
   DayMood,
   DayPrayers,
   UserProfile,
+  ThemeType,
+  ScratchNote,
 } from './types/planner';
 import {
   getMondayOfWeek,
@@ -46,6 +52,7 @@ import {
 import { plannerStorage } from './storage/plannerStorage';
 import { playTaskCompleteSound } from './utils/soundEffects';
 import { fireConfetti } from './utils/confetti';
+import { downloadIcsFile } from './utils/icsExport';
 import { Sparkles } from 'lucide-react';
 
 const ENCOURAGING_MESSAGES = [
@@ -61,13 +68,34 @@ export default function App() {
   const initialWeekStart = useMemo(() => {
     const savedLast = plannerStorage.getLastActiveWeek();
     if (savedLast) return savedLast;
-    return '2026-09-28';
+    return getMondayOfWeek(new Date());
   }, []);
 
   const [currentWeekStart, setCurrentWeekStart] = useState<string>(initialWeekStart);
   const [plannerState, setPlannerState] = useState<PlannerState>(() =>
     plannerStorage.load(initialWeekStart)
   );
+
+  // Live auto-update check for day and week changes at midnight or interval
+  useEffect(() => {
+    // Check every 30 seconds if day or week has rolled over to auto-highlight today & update week if on current week
+    const checkInterval = setInterval(() => {
+      const liveMonday = getMondayOfWeek(new Date());
+      // If user is currently viewing what was current week, keep them in sync
+      const savedLast = plannerStorage.getLastActiveWeek();
+      if (!savedLast) {
+        setCurrentWeekStart((prev) => {
+          if (prev !== liveMonday) {
+            setPlannerState(plannerStorage.load(liveMonday));
+            return liveMonday;
+          }
+          return prev;
+        });
+      }
+    }, 30000);
+
+    return () => clearInterval(checkInterval);
+  }, []);
 
   // User Profile personalization
   const [userProfile, setUserProfile] = useState<UserProfile>(() => {
@@ -99,9 +127,67 @@ export default function App() {
   const [isAchievementModalOpen, setIsAchievementModalOpen] = useState<boolean>(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState<boolean>(false);
   const [isBreathingModalOpen, setIsBreathingModalOpen] = useState<boolean>(false);
+  const [isRitualsModalOpen, setIsRitualsModalOpen] = useState<boolean>(false);
+  const [isLettersModalOpen, setIsLettersModalOpen] = useState<boolean>(false);
+  const [isWrappedModalOpen, setIsWrappedModalOpen] = useState<boolean>(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
   const [backupModalMode, setBackupModalMode] = useState<'export' | 'import' | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Aesthetic Color Theme
+  const [currentTheme, setCurrentTheme] = useState<ThemeType>(() => {
+    try {
+      const saved = localStorage.getItem('weekly_planner_color_theme') as ThemeType;
+      if (['minimal', 'sage', 'latte', 'obsidian'].includes(saved)) return saved;
+    } catch {
+      // ignore
+    }
+    return 'minimal';
+  });
+
+  useEffect(() => {
+    document.body.classList.remove('theme-sage', 'theme-latte', 'theme-obsidian');
+    if (currentTheme !== 'minimal') {
+      document.body.classList.add(`theme-${currentTheme}`);
+    }
+    try {
+      localStorage.setItem('weekly_planner_color_theme', currentTheme);
+    } catch {
+      // ignore
+    }
+  }, [currentTheme]);
+
+  // Scratchpad / Brain Dump state
+  const [scratchNotes, setScratchNotes] = useState<ScratchNote[]>(() => {
+    try {
+      const saved = localStorage.getItem('weekly_planner_scratch_notes');
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // ignore
+    }
+    return [];
+  });
+
+  const handleAddScratchNote = useCallback((content: string) => {
+    const newNote: ScratchNote = {
+      id: `sn-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+      content,
+      createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+    setScratchNotes((prev) => {
+      const updated = [newNote, ...prev];
+      localStorage.setItem('weekly_planner_scratch_notes', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  const handleDeleteScratchNote = useCallback((id: string) => {
+    setScratchNotes((prev) => {
+      const updated = prev.filter((n) => n.id !== id);
+      localStorage.setItem('weekly_planner_scratch_notes', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
 
   // Dark Mode State
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
@@ -143,8 +229,18 @@ export default function App() {
     setLastSavedText(`at ${timeStr}`);
   }, [plannerState]);
 
-  // Days metadata for the active week
-  const daysInfo = useMemo(() => getWeekDaysInfo(currentWeekStart), [currentWeekStart]);
+  // Current live tick to keep isToday dynamically updated across midnight
+  const [liveDateTick, setLiveDateTick] = useState<string>(() => new Date().toISOString().split('T')[0]);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const todayStr = new Date().toISOString().split('T')[0];
+      setLiveDateTick((prev) => (prev !== todayStr ? todayStr : prev));
+    }, 10000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Days metadata for the active week (re-evaluates automatically when date ticks)
+  const daysInfo = useMemo(() => getWeekDaysInfo(currentWeekStart), [currentWeekStart, liveDateTick]);
 
   // Navigation handlers
   const handlePrevWeek = useCallback(() => {
@@ -847,9 +943,17 @@ export default function App() {
         onExport={() => setBackupModalMode('export')}
         onImport={() => setBackupModalMode('import')}
         onPrint={handlePrint}
+        onExportCalendar={() => {
+          downloadIcsFile(plannerState);
+          setToastMessage('📅 Exported weekly schedule (.ics) for your Calendar!');
+          setTimeout(() => setToastMessage(null), 3000);
+        }}
         onOpenShortcuts={() => setIsShortcutsModalOpen(true)}
         onOpenAchievementCard={() => setIsAchievementModalOpen(true)}
         onOpenBreathing={() => setIsBreathingModalOpen(true)}
+        onOpenRituals={() => setIsRitualsModalOpen(true)}
+        onOpenLetters={() => setIsLettersModalOpen(true)}
+        onOpenWrapped={() => setIsWrappedModalOpen(true)}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
         onOpenProfile={() => setIsProfileModalOpen(true)}
         userName={userProfile.name}
@@ -857,6 +961,12 @@ export default function App() {
         lastSavedText={lastSavedText}
         isDarkMode={isDarkMode}
         onToggleDarkMode={handleToggleDarkMode}
+        currentTheme={currentTheme}
+        onChangeTheme={(th) => {
+          setCurrentTheme(th);
+          setToastMessage(`Theme updated to ${th.toUpperCase()} ✨`);
+          setTimeout(() => setToastMessage(null), 2000);
+        }}
       />
 
       {/* Main Container */}
@@ -933,6 +1043,20 @@ export default function App() {
           onTogglePrayer={handleTogglePrayer}
           onUpdateWater={handleUpdateWater}
           onUpdateWin={handleUpdateWin}
+        />
+
+        {/* Daily Brain Dump & Scratchpad */}
+        <BrainDumpScratchpad
+          notes={scratchNotes}
+          onAddNote={handleAddScratchNote}
+          onDeleteNote={handleDeleteScratchNote}
+          onTransferToDay={(noteId, content, dayIdx) => {
+            handleAddTask(dayIdx, content);
+            handleDeleteScratchNote(noteId);
+            setToastMessage(`✓ Moved thought to ${daysInfo[dayIdx]?.dayName || 'Day'}!`);
+            setTimeout(() => setToastMessage(null), 2500);
+          }}
+          daysInfo={daysInfo}
         />
 
         {/* Master To-Do & Backlog Quick Capture */}
@@ -1047,6 +1171,37 @@ export default function App() {
         onOpenBreathing={() => setIsBreathingModalOpen(true)}
         onOpenAchievement={() => setIsAchievementModalOpen(true)}
         onOpenProfile={() => setIsProfileModalOpen(true)}
+        onOpenRituals={() => setIsRitualsModalOpen(true)}
+        onOpenLetters={() => setIsLettersModalOpen(true)}
+        onOpenWrapped={() => setIsWrappedModalOpen(true)}
+      />
+
+      {/* VIP Feature #1: Daily Rituals Modal (Morning Clarity & Evening Reflection) */}
+      <DailyRitualsModal
+        isOpen={isRitualsModalOpen}
+        onClose={() => setIsRitualsModalOpen(false)}
+        userName={userProfile.name}
+        onAddTodayTask={(taskTitle) => {
+          const todayIndex = daysInfo.findIndex((d) => d.isToday);
+          const targetDay = todayIndex !== -1 ? todayIndex : 0;
+          handleAddTask(targetDay, taskTitle);
+        }}
+      />
+
+      {/* VIP Feature #2: Future Letters & Time Capsule */}
+      <FutureLettersModal
+        isOpen={isLettersModalOpen}
+        onClose={() => setIsLettersModalOpen(false)}
+        userName={userProfile.name}
+      />
+
+      {/* VIP Feature #3: Weekly Wrapped Spotify-Style Story */}
+      <WeeklyWrappedModal
+        isOpen={isWrappedModalOpen}
+        onClose={() => setIsWrappedModalOpen(false)}
+        state={plannerState}
+        daysInfo={daysInfo}
+        userName={userProfile.name}
       />
     </div>
   );

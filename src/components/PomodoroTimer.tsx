@@ -12,6 +12,8 @@ import {
   ChevronDown,
   ChevronUp,
   Sparkles,
+  Coffee,
+  Headphones,
 } from 'lucide-react';
 import {
   startAmbientSound,
@@ -35,7 +37,7 @@ export const PomodoroTimer: React.FC = () => {
   const [mode, setMode] = useState<TimerMode>('focus');
   const [timeLeft, setTimeLeft] = useState(MODE_DURATIONS.focus);
   const [isRunning, setIsRunning] = useState(false);
-  const [ambientType, setAmbientType] = useState<'rain' | 'ocean' | 'whitenoise' | 'off'>('off');
+  const [ambientType, setAmbientType] = useState<'rain' | 'ocean' | 'whitenoise' | 'cafe' | 'binaural' | 'off'>('off');
   const [volume, setVolume] = useState(0.35);
   const [completedSessions, setCompletedSessions] = useState(0);
 
@@ -79,7 +81,7 @@ export const PomodoroTimer: React.FC = () => {
     setTimeLeft(MODE_DURATIONS[newMode]);
   };
 
-  const handleSelectAmbient = (type: 'rain' | 'ocean' | 'whitenoise' | 'off') => {
+  const handleSelectAmbient = (type: 'rain' | 'ocean' | 'whitenoise' | 'cafe' | 'binaural' | 'off') => {
     setAmbientType(type);
     if (type === 'off') {
       stopAmbientSound();
@@ -267,6 +269,32 @@ export const PomodoroTimer: React.FC = () => {
               >
                 <Wind className="w-3 h-3" />
                 <span>Noise</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSelectAmbient('cafe')}
+                className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold transition-all cursor-pointer ${
+                  ambientType === 'cafe'
+                    ? 'bg-amber-700 text-white shadow-xs'
+                    : 'text-[#71717A] hover:text-[#111111] dark:hover:text-white'
+                }`}
+                title="Cozy Coffee Shop Ambience"
+              >
+                <Coffee className="w-3 h-3" />
+                <span>Café</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSelectAmbient('binaural')}
+                className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold transition-all cursor-pointer ${
+                  ambientType === 'binaural'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'text-[#71717A] hover:text-[#111111] dark:hover:text-white'
+                }`}
+                title="10Hz Alpha Binaural Beats for Deep Flow State"
+              >
+                <Headphones className="w-3 h-3" />
+                <span>Binaural</span>
               </button>
             </div>
 

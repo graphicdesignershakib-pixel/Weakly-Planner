@@ -23,6 +23,9 @@ interface CommandPaletteModalProps {
   onOpenBreathing: () => void;
   onOpenAchievement: () => void;
   onOpenProfile: () => void;
+  onOpenRituals?: () => void;
+  onOpenLetters?: () => void;
+  onOpenWrapped?: () => void;
 }
 
 export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
@@ -35,6 +38,9 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
   onOpenBreathing,
   onOpenAchievement,
   onOpenProfile,
+  onOpenRituals,
+  onOpenLetters,
+  onOpenWrapped,
 }) => {
   const [query, setQuery] = useState('');
 
@@ -186,6 +192,51 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
                     Edit Your Profile
                   </span>
                 </button>
+                {onOpenRituals && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onOpenRituals();
+                    }}
+                    className="p-2 rounded-xl bg-[#FAFAFA] dark:bg-[#121214] hover:bg-[#F4F4F5] dark:hover:bg-[#27272A] text-left border border-[#E5E7EB] dark:border-[#27272A] cursor-pointer flex items-center gap-2"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    <span className="text-xs font-semibold text-[#111111] dark:text-white">
+                      Daily Rituals
+                    </span>
+                  </button>
+                )}
+                {onOpenLetters && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onOpenLetters();
+                    }}
+                    className="p-2 rounded-xl bg-[#FAFAFA] dark:bg-[#121214] hover:bg-[#F4F4F5] dark:hover:bg-[#27272A] text-left border border-[#E5E7EB] dark:border-[#27272A] cursor-pointer flex items-center gap-2"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                    <span className="text-xs font-semibold text-[#111111] dark:text-white">
+                      Letters to Future Self
+                    </span>
+                  </button>
+                )}
+                {onOpenWrapped && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onOpenWrapped();
+                    }}
+                    className="p-2 rounded-xl bg-[#FAFAFA] dark:bg-[#121214] hover:bg-[#F4F4F5] dark:hover:bg-[#27272A] text-left border border-[#E5E7EB] dark:border-[#27272A] cursor-pointer flex items-center gap-2"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-pink-500" />
+                    <span className="text-xs font-semibold text-[#111111] dark:text-white">
+                      Weekly Wrapped Story
+                    </span>
+                  </button>
+                )}
               </div>
             </div>
           )}

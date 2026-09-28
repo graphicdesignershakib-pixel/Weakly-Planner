@@ -7,8 +7,9 @@
 let ambientCtx: AudioContext | null = null;
 let currentSourceNode: AudioNode | null = null;
 let gainNode: GainNode | null = null;
-let activeAmbientType: 'rain' | 'ocean' | 'whitenoise' | null = null;
+let activeAmbientType: 'rain' | 'ocean' | 'whitenoise' | 'cafe' | 'binaural' | null = null;
 let modulationInterval: number | null = null;
+let oscillatorNodes: OscillatorNode[] = [];
 
 function getContext(): AudioContext | null {
   if (typeof window === 'undefined') return null;
@@ -43,7 +44,7 @@ function createNoiseBuffer(ctx: AudioContext, seconds = 5): AudioBuffer {
 }
 
 export function startAmbientSound(
-  type: 'rain' | 'ocean' | 'whitenoise',
+  type: 'rain' | 'ocean' | 'whitenoise' | 'cafe' | 'binaural',
   volume = 0.35
 ): void {
   stopAmbientSound();
@@ -53,15 +54,56 @@ export function startAmbientSound(
 
   activeAmbientType = type;
 
+  gainNode = ctx.createGain();
+  gainNode.gain.setValueAtTime(volume, ctx.currentTime);
+
+  if (type === 'binaural') {
+    // Binaural Beats: Alpha waves (432Hz in left ear, 442Hz in right ear -> 10Hz Alpha focus frequency)
+    const merger = ctx.createChannelMerger(2);
+
+    const oscLeft = ctx.createOscillator();
+    oscLeft.type = 'sine';
+    oscLeft.frequency.setValueAtTime(216, ctx.currentTime);
+
+    const oscRight = ctx.createOscillator();
+    oscRight.type = 'sine';
+    oscRight.frequency.setValueAtTime(226, ctx.currentTime); // 10Hz differential
+
+    const gainLeft = ctx.createGain();
+    gainLeft.gain.setValueAtTime(0.5, ctx.currentTime);
+    const gainRight = ctx.createGain();
+    gainRight.gain.setValueAtTime(0.5, ctx.currentTime);
+
+    oscLeft.connect(gainLeft);
+    oscRight.connect(gainRight);
+
+    gainLeft.connect(merger, 0, 0);
+    gainRight.connect(merger, 0, 1);
+
+    merger.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    oscLeft.start();
+    oscRight.start();
+    oscillatorNodes = [oscLeft, oscRight];
+    return;
+  }
+
   const buffer = createNoiseBuffer(ctx, 4);
   const noiseSource = ctx.createBufferSource();
   noiseSource.buffer = buffer;
   noiseSource.loop = true;
 
-  gainNode = ctx.createGain();
-  gainNode.gain.setValueAtTime(volume, ctx.currentTime);
+  if (type === 'cafe') {
+    // Cafe / Coffee Shop Ambience simulation: Warm filtered noise with slight rumble & murmur filter
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(550, ctx.currentTime);
+    filter.Q.setValueAtTime(0.8, ctx.currentTime);
 
-  if (type === 'rain') {
+    noiseSource.connect(filter);
+    filter.connect(gainNode);
+  } else if (type === 'rain') {
     // Rain filter: Lowpass filter around 750Hz with resonance
     const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
@@ -108,6 +150,17 @@ export function stopAmbientSound(): void {
     clearInterval(modulationInterval);
     modulationInterval = null;
   }
+  if (oscillatorNodes.length > 0) {
+    oscillatorNodes.forEach((osc) => {
+      try {
+        osc.stop();
+        osc.disconnect();
+      } catch {
+        // ignore
+      }
+    });
+    oscillatorNodes = [];
+  }
   if (currentSourceNode) {
     try {
       (currentSourceNode as AudioBufferSourceNode).stop();
@@ -134,6 +187,6 @@ export function setAmbientVolume(vol: number): void {
   }
 }
 
-export function getActiveAmbientType(): 'rain' | 'ocean' | 'whitenoise' | null {
+export function getActiveAmbientType(): 'rain' | 'ocean' | 'whitenoise' | 'cafe' | 'binaural' | null {
   return activeAmbientType;
 }

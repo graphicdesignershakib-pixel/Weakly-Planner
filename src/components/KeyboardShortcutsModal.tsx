@@ -27,6 +27,7 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
     { key: 'T', desc: 'Jump to current week (Today)' },
     { key: '1 – 7', desc: 'Quick jump to day (Mon to Sun)' },
     { key: 'N', desc: 'Focus task input for current or active day' },
+    { key: '⌘ / Ctrl + K', desc: 'Open Command Palette & Global Search' },
     { key: '⌘ / Ctrl + P', desc: 'Print or export as PDF' },
     { key: '⌘ / Ctrl + S', desc: 'Instant save planner state' },
     { key: 'Enter', desc: 'Submit new task or save inline edit' },

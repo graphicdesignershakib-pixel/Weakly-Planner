@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -16,8 +16,14 @@ import {
   Trophy,
   Wind,
   Search,
+  CalendarDays,
+  Palette,
+  Clock,
+  Mail,
+  Flame,
 } from 'lucide-react';
 import { formatWeekRangeLabel, getMondayOfWeek } from '../utils/dateUtils';
+import { ThemeType } from '../types/planner';
 
 interface HeaderProps {
   weekStart: string;
@@ -29,9 +35,13 @@ interface HeaderProps {
   onExport: () => void;
   onImport: () => void;
   onPrint: () => void;
+  onExportCalendar?: () => void;
   onOpenShortcuts: () => void;
   onOpenAchievementCard?: () => void;
   onOpenBreathing?: () => void;
+  onOpenRituals?: () => void;
+  onOpenLetters?: () => void;
+  onOpenWrapped?: () => void;
   onOpenCommandPalette?: () => void;
   onOpenProfile?: () => void;
   userName?: string;
@@ -39,6 +49,8 @@ interface HeaderProps {
   lastSavedText: string;
   isDarkMode?: boolean;
   onToggleDarkMode?: () => void;
+  currentTheme?: ThemeType;
+  onChangeTheme?: (theme: ThemeType) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -51,9 +63,13 @@ export const Header: React.FC<HeaderProps> = ({
   onExport,
   onImport,
   onPrint,
+  onExportCalendar,
   onOpenShortcuts,
   onOpenAchievementCard,
   onOpenBreathing,
+  onOpenRituals,
+  onOpenLetters,
+  onOpenWrapped,
   onOpenCommandPalette,
   onOpenProfile,
   userName = 'Shakib',
@@ -61,9 +77,21 @@ export const Header: React.FC<HeaderProps> = ({
   lastSavedText,
   isDarkMode,
   onToggleDarkMode,
+  currentTheme = 'minimal',
+  onChangeTheme,
 }) => {
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const currentWeekMonday = getMondayOfWeek(new Date());
+  const [currentTime, setCurrentTime] = useState<Date>(() => new Date());
+
+  // Live real-time clock ticking every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const currentWeekMonday = getMondayOfWeek(currentTime);
   const isCurrentWeek = weekStart === currentWeekMonday;
 
   const handleManualSave = () => {
@@ -72,9 +100,23 @@ export const Header: React.FC<HeaderProps> = ({
     setTimeout(() => setSaveSuccess(false), 2000);
   };
 
+  // Live formatted time strings
+  const formattedLiveDate = currentTime.toLocaleDateString('en-US', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+  const formattedLiveClock = currentTime.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  });
+
   // Get dynamic greeting with user name
   const getGreeting = () => {
-    const hour = new Date().getHours();
+    const hour = currentTime.getHours();
     if (hour >= 5 && hour < 12) return `Good morning, ${userName}! Make today remarkable ✨`;
     if (hour >= 12 && hour < 17) return `Good afternoon, ${userName}! Momentum is building 🔥`;
     if (hour >= 17 && hour < 22) return `Good evening, ${userName}! Celebrate today's wins 🌙`;
@@ -109,12 +151,19 @@ export const Header: React.FC<HeaderProps> = ({
                 {userTagline && <span className="opacity-60">· {userTagline}</span>}
               </button>
             </div>
-            <div className="flex items-center gap-2 mt-0.5">
+            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
               <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                 <Sparkles className="w-3 h-3" />
                 {getGreeting()}
               </span>
-              <span className="text-[11px] text-[#A1A1AA] dark:text-[#71717A] tabular-nums hidden sm:inline">
+              {/* Real-time Live Clock & Date Badge */}
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#F4F4F5] dark:bg-[#202024] border border-[#E5E7EB] dark:border-[#2E2E33] text-[10px] font-mono text-[#52525B] dark:text-[#A1A1AA] tabular-nums shadow-2xs">
+                <Clock className="w-3 h-3 text-sky-500 animate-pulse" />
+                <span className="font-semibold text-[#111111] dark:text-zinc-200">{formattedLiveClock}</span>
+                <span className="opacity-40">|</span>
+                <span>{formattedLiveDate}</span>
+              </div>
+              <span className="text-[11px] text-[#A1A1AA] dark:text-[#71717A] tabular-nums hidden lg:inline">
                 · {lastSavedText ? `Saved ${lastSavedText}` : 'Ready'}
               </span>
             </div>
@@ -189,6 +238,61 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
+          {/* Daily Rituals (Morning Clarity & Evening Reflection) */}
+          {onOpenRituals && (
+            <button
+              type="button"
+              onClick={onOpenRituals}
+              className="p-1.5 rounded-lg border border-amber-300 dark:border-amber-800/50 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors cursor-pointer"
+              title="Daily Rituals: Morning Intentions & Evening Gratitude"
+            >
+              <Flame className="w-4 h-4" />
+            </button>
+          )}
+
+          {/* Time Capsule Future Letters */}
+          {onOpenLetters && (
+            <button
+              type="button"
+              onClick={onOpenLetters}
+              className="p-1.5 rounded-lg border border-purple-200 dark:border-purple-800/50 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/40 transition-colors cursor-pointer"
+              title="Time Capsule: Letters to Future Self"
+            >
+              <Mail className="w-4 h-4" />
+            </button>
+          )}
+
+          {/* Weekly Wrapped Celebration Story */}
+          {onOpenWrapped && (
+            <button
+              type="button"
+              onClick={onOpenWrapped}
+              className="p-1.5 rounded-lg border border-pink-300 dark:border-pink-800/50 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-950/40 transition-colors cursor-pointer"
+              title="Weekly Wrapped Celebration (Spotify-Style Story)"
+            >
+              <Sparkles className="w-4 h-4" />
+            </button>
+          )}
+
+          {/* Aesthetic Color Theme Cycler */}
+          {onChangeTheme && (
+            <button
+              type="button"
+              onClick={() => {
+                const themes: ThemeType[] = ['minimal', 'sage', 'latte', 'obsidian'];
+                const nextIdx = (themes.indexOf(currentTheme) + 1) % themes.length;
+                onChangeTheme(themes[nextIdx]);
+              }}
+              className="p-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] text-[#71717A] dark:text-[#A1A1AA] hover:text-[#111111] dark:hover:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#202024] transition-colors cursor-pointer flex items-center gap-1"
+              title={`Switch Aesthetic Theme (Current: ${currentTheme.toUpperCase()})`}
+            >
+              <Palette className="w-4 h-4" />
+              <span className="hidden xl:inline text-[10px] font-bold uppercase tracking-wider">
+                {currentTheme}
+              </span>
+            </button>
+          )}
+
           {/* Dark Mode Switcher */}
           {onToggleDarkMode && (
             <button
@@ -222,6 +326,18 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Printer className="w-4 h-4" />
           </button>
+
+          {/* Sync to Apple/Google Calendar .ics */}
+          {onExportCalendar && (
+            <button
+              type="button"
+              onClick={onExportCalendar}
+              className="p-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] text-[#71717A] dark:text-[#A1A1AA] hover:text-[#111111] dark:hover:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#202024] transition-colors cursor-pointer"
+              title="Sync Schedule to Google / Apple Calendar (.ics file)"
+            >
+              <CalendarDays className="w-4 h-4" />
+            </button>
+          )}
 
           {/* Shortcuts */}
           <button

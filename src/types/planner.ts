@@ -118,3 +118,24 @@ export type DayInfo = {
   fullFormatted: string; // "28 September 2026"
   isToday: boolean;
 };
+
+export type DailyRitual = {
+  dateStr: string; // YYYY-MM-DD
+  morningWins: string[]; // 3 top non-negotiable wins
+  morningAffirmation?: string;
+  eveningGratitude: string[]; // 3 things grateful for
+  eveningHighlight?: string; // Best moment of the day
+  completedMorning: boolean;
+  completedEvening: boolean;
+};
+
+export type FutureLetter = {
+  id: string;
+  createdDate: string; // YYYY-MM-DD
+  unlockDate: string; // YYYY-MM-DD
+  title: string;
+  message: string;
+  authorName: string;
+  moodTag?: string;
+  isOpened?: boolean;
+};

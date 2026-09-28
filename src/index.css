@@ -20,6 +20,28 @@
     color: #F4F4F5;
     background-color: #09090B;
   }
+
+  /* Aesthetic Color Themes */
+  body.theme-sage {
+    background-color: #F4F7F4 !important;
+  }
+  .dark body.theme-sage {
+    background-color: #0F1713 !important;
+  }
+
+  body.theme-latte {
+    background-color: #FBF7F0 !important;
+  }
+  .dark body.theme-latte {
+    background-color: #171412 !important;
+  }
+
+  body.theme-obsidian {
+    background-color: #F3F4F6 !important;
+  }
+  .dark body.theme-obsidian {
+    background-color: #050507 !important;
+  }
 }
 
 .tabular-nums {
