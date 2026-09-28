@@ -21,6 +21,7 @@ import {
   Clock,
   Mail,
   Flame,
+  BookOpen,
 } from 'lucide-react';
 import { formatWeekRangeLabel, getMondayOfWeek } from '../utils/dateUtils';
 import { ThemeType } from '../types/planner';
@@ -42,6 +43,7 @@ interface HeaderProps {
   onOpenRituals?: () => void;
   onOpenLetters?: () => void;
   onOpenWrapped?: () => void;
+  onOpenManual?: () => void;
   onOpenCommandPalette?: () => void;
   onOpenProfile?: () => void;
   userName?: string;
@@ -70,6 +72,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenRituals,
   onOpenLetters,
   onOpenWrapped,
+  onOpenManual,
   onOpenCommandPalette,
   onOpenProfile,
   userName = 'Shakib',
@@ -326,6 +329,18 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Printer className="w-4 h-4" />
           </button>
+
+          {/* User Manual Guide */}
+          {onOpenManual && (
+            <button
+              type="button"
+              onClick={onOpenManual}
+              className="p-1.5 rounded-lg border border-sky-300 dark:border-sky-800/60 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/40 transition-colors cursor-pointer"
+              title="ব্যবহার নির্দেশিকা / App User Manual"
+            >
+              <BookOpen className="w-4 h-4" />
+            </button>
+          )}
 
           {/* Sync to Apple/Google Calendar .ics */}
           {onExportCalendar && (

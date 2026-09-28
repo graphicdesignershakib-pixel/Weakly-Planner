@@ -26,6 +26,7 @@ interface CommandPaletteModalProps {
   onOpenRituals?: () => void;
   onOpenLetters?: () => void;
   onOpenWrapped?: () => void;
+  onOpenManual?: () => void;
 }
 
 export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
@@ -41,6 +42,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
   onOpenRituals,
   onOpenLetters,
   onOpenWrapped,
+  onOpenManual,
 }) => {
   const [query, setQuery] = useState('');
 
@@ -234,6 +236,21 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
                     <Sparkles className="w-3.5 h-3.5 text-pink-500" />
                     <span className="text-xs font-semibold text-[#111111] dark:text-white">
                       Weekly Wrapped Story
+                    </span>
+                  </button>
+                )}
+                {onOpenManual && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onOpenManual();
+                    }}
+                    className="p-2 rounded-xl bg-[#FAFAFA] dark:bg-[#121214] hover:bg-[#F4F4F5] dark:hover:bg-[#27272A] text-left border border-[#E5E7EB] dark:border-[#27272A] cursor-pointer flex items-center gap-2"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-sky-500" />
+                    <span className="text-xs font-semibold text-[#111111] dark:text-white">
+                      User Manual & Guide
                     </span>
                   </button>
                 )}

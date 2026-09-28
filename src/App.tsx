@@ -31,6 +31,7 @@ import { BrainDumpScratchpad } from './components/BrainDumpScratchpad';
 import { DailyRitualsModal } from './components/DailyRitualsModal';
 import { FutureLettersModal } from './components/FutureLettersModal';
 import { WeeklyWrappedModal } from './components/WeeklyWrappedModal';
+import { UserManualModal } from './components/UserManualModal';
 import {
   PlannerState,
   WeeklyReview as WeeklyReviewType,
@@ -130,6 +131,7 @@ export default function App() {
   const [isRitualsModalOpen, setIsRitualsModalOpen] = useState<boolean>(false);
   const [isLettersModalOpen, setIsLettersModalOpen] = useState<boolean>(false);
   const [isWrappedModalOpen, setIsWrappedModalOpen] = useState<boolean>(false);
+  const [isManualModalOpen, setIsManualModalOpen] = useState<boolean>(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
   const [backupModalMode, setBackupModalMode] = useState<'export' | 'import' | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -954,6 +956,7 @@ export default function App() {
         onOpenRituals={() => setIsRitualsModalOpen(true)}
         onOpenLetters={() => setIsLettersModalOpen(true)}
         onOpenWrapped={() => setIsWrappedModalOpen(true)}
+        onOpenManual={() => setIsManualModalOpen(true)}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
         onOpenProfile={() => setIsProfileModalOpen(true)}
         userName={userProfile.name}
@@ -1174,6 +1177,7 @@ export default function App() {
         onOpenRituals={() => setIsRitualsModalOpen(true)}
         onOpenLetters={() => setIsLettersModalOpen(true)}
         onOpenWrapped={() => setIsWrappedModalOpen(true)}
+        onOpenManual={() => setIsManualModalOpen(true)}
       />
 
       {/* VIP Feature #1: Daily Rituals Modal (Morning Clarity & Evening Reflection) */}
@@ -1202,6 +1206,12 @@ export default function App() {
         state={plannerState}
         daysInfo={daysInfo}
         userName={userProfile.name}
+      />
+
+      {/* Interactive App User Manual & Guide Modal */}
+      <UserManualModal
+        isOpen={isManualModalOpen}
+        onClose={() => setIsManualModalOpen(false)}
       />
     </div>
   );
