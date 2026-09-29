@@ -27,6 +27,7 @@ interface HabitTrackerProps {
   onRenameHabit: (habitId: string, newName: string, category?: HabitCategory) => void;
   onDeleteHabit: (habitId: string) => void;
   onMoveHabit: (fromIndex: number, direction: 'up' | 'down') => void;
+  onMarkAllHabitsToday?: (dayIndex: number) => void;
 }
 
 export const CATEGORY_CONFIG: Record<
@@ -78,6 +79,7 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
   onRenameHabit,
   onDeleteHabit,
   onMoveHabit,
+  onMarkAllHabitsToday,
 }) => {
   const [newHabitName, setNewHabitName] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<HabitCategory>('health');
@@ -86,6 +88,9 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
   const [editingName, setEditingName] = useState('');
   const [editingCategory, setEditingCategory] = useState<HabitCategory>('health');
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const todayIndex = daysInfo.findIndex((d) => d.isToday);
+  const targetTodayIndex = todayIndex !== -1 ? todayIndex : 0;
 
   const overall = calculateOverallHabitProgress(habits);
 
@@ -136,11 +141,11 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
   });
 
   return (
-    <section aria-labelledby="habit-tracker-heading" className="bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] rounded-xl p-4 sm:p-6 shadow-xs transition-colors">
+    <section aria-labelledby="habit-tracker-heading" className="bg-white/80 dark:bg-[#111827]/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-md transition-all luxury-card">
       {/* Section Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#F4F4F5] dark:border-[#27272A]">
-        <div className="flex items-center gap-2.5">
-          <span className="p-2 bg-[#111111] dark:bg-white text-white dark:text-[#111111] rounded-lg shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/60">
+        <div className="flex items-center gap-3">
+          <span className="p-2.5 bg-gradient-to-tr from-amber-500 via-orange-500 to-rose-500 text-white rounded-xl shadow-md shadow-orange-500/20">
             <Flame className="w-4 h-4" />
           </span>
           <div>
@@ -158,15 +163,29 @@ export const HabitTracker: React.FC<HabitTrackerProps> = ({
           </div>
         </div>
 
-        {/* Overall Habit Metric */}
-        <div className="flex items-center gap-3 bg-[#F8F9FA] dark:bg-[#202024] border border-[#E5E7EB] dark:border-[#27272A] px-3.5 py-1.5 rounded-lg self-start sm:self-auto">
-          <span className="text-xs font-semibold text-[#52525B] dark:text-[#A1A1AA]">Weekly Consistency:</span>
-          <span className="text-sm font-bold text-[#111111] dark:text-white tabular-nums font-mono">
-            {overall.percentage}%
-          </span>
-          <span className="text-[11px] text-[#71717A] dark:text-[#A1A1AA]">
-            ({overall.completed}/{overall.total})
-          </span>
+        {/* Actions & Habit Metric */}
+        <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto">
+          {onMarkAllHabitsToday && habits.length > 0 && (
+            <button
+              type="button"
+              onClick={() => onMarkAllHabitsToday(targetTodayIndex)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl text-xs font-bold shadow-xs hover:brightness-105 active:scale-95 transition-all cursor-pointer font-sans"
+              title={`Toggle completion of all habits for ${daysInfo[targetTodayIndex]?.dayName || 'Today'}`}
+            >
+              <Check className="w-3.5 h-3.5 stroke-[3]" />
+              <span>Toggle All Today ({daysInfo[targetTodayIndex]?.dayAbbr || 'Today'})</span>
+            </button>
+          )}
+
+          <div className="flex items-center gap-3 bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 px-3.5 py-1.5 rounded-xl shadow-inner">
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Weekly Consistency:</span>
+            <span className="text-sm font-bold text-slate-900 dark:text-white tabular-nums font-mono">
+              {overall.percentage}%
+            </span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+              ({overall.completed}/{overall.total})
+            </span>
+          </div>
         </div>
       </div>
 

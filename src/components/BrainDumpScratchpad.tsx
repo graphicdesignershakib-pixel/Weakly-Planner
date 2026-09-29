@@ -48,28 +48,28 @@ export const BrainDumpScratchpad: React.FC<BrainDumpScratchpadProps> = ({
   const targetDayIdx = todayIndex !== -1 ? todayIndex : 0;
 
   return (
-    <div className="bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] rounded-xl overflow-hidden shadow-xs transition-colors">
+    <div className="bg-white/80 dark:bg-[#111827]/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all luxury-card">
       {/* Header bar */}
       <div
         onClick={() => setIsExpanded(!isExpanded)}
-        className="p-3.5 sm:p-4 flex items-center justify-between cursor-pointer hover:bg-[#FAFAFA] dark:hover:bg-[#151518] transition-colors"
+        className="p-4 sm:p-5 flex items-center justify-between cursor-pointer hover:bg-slate-50/80 dark:hover:bg-slate-850/50 transition-colors"
       >
-        <div className="flex items-center gap-2.5">
-          <span className="p-1.5 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800/40 rounded-lg">
+        <div className="flex items-center gap-3">
+          <span className="p-2.5 bg-gradient-to-tr from-amber-400 to-yellow-500 text-slate-950 rounded-xl shadow-md shadow-amber-400/20">
             <Lightbulb className="w-4 h-4" />
           </span>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#111111] dark:text-white">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
                 Brain Dump & Scratchpad
               </h3>
               {notes.length > 0 && (
-                <span className="text-[10px] font-bold font-mono px-1.5 py-0.2 rounded-full bg-[#F4F4F5] dark:bg-[#27272A] text-[#71717A] dark:text-[#A1A1AA]">
+                <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50">
                   {notes.length}
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-[#71717A] dark:text-[#A1A1AA]">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
               Capture floating thoughts, phone notes, or quick ideas before organizing
             </p>
           </div>

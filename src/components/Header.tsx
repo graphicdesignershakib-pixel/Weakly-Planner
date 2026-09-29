@@ -22,6 +22,7 @@ import {
   Mail,
   Flame,
   BookOpen,
+  MoreVertical,
 } from 'lucide-react';
 import { formatWeekRangeLabel, getMondayOfWeek } from '../utils/dateUtils';
 import { ThemeType } from '../types/planner';
@@ -85,6 +86,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [currentTime, setCurrentTime] = useState<Date>(() => new Date());
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
 
   // Live real-time clock ticking every second
   useEffect(() => {
@@ -127,27 +129,27 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-white dark:bg-[#18181B] border-b border-[#E5E7EB] dark:border-[#27272A] px-4 sm:px-6 lg:px-8 py-3 transition-colors">
+    <header className="sticky top-0 z-30 bg-white/80 dark:bg-[#0B0F17]/80 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80 px-4 sm:px-6 lg:px-8 py-3 transition-colors shadow-2xs">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         {/* Brand & Dynamic Greeting */}
         <div className="flex items-center justify-between sm:justify-start gap-4">
           <button
             type="button"
             onClick={onOpenProfile}
-            className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-white text-base font-black shadow-xs shrink-0 hover:scale-105 transition-transform cursor-pointer"
+            className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-rose-500 to-indigo-600 flex items-center justify-center text-white text-base font-black shadow-md ring-2 ring-white/20 shrink-0 hover:scale-105 active:scale-95 transition-all cursor-pointer"
             title="Click to edit your profile"
           >
             {userName.slice(0, 1).toUpperCase()}
           </button>
           <div className="flex flex-col">
             <div className="flex items-baseline gap-2.5">
-              <span className="text-lg sm:text-xl font-bold tracking-tight text-[#111111] dark:text-white">
+              <span className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
                 Weekly Life Planner
               </span>
               <button
                 type="button"
                 onClick={onOpenProfile}
-                className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-[#52525B] dark:text-zinc-300 hover:text-[#111111] dark:hover:text-white bg-[#F4F4F5] dark:bg-[#27272A] px-2 py-0.5 rounded-full cursor-pointer transition-colors"
+                className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/60 px-2.5 py-0.5 rounded-full cursor-pointer transition-colors shadow-2xs"
                 title="Edit profile"
               >
                 <span>{userName}</span>
@@ -155,18 +157,18 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             </div>
             <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-              <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                <Sparkles className="w-3 h-3" />
+              <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                <Sparkles className="w-3 h-3 animate-pulse" />
                 {getGreeting()}
               </span>
               {/* Real-time Live Clock & Date Badge */}
-              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#F4F4F5] dark:bg-[#202024] border border-[#E5E7EB] dark:border-[#2E2E33] text-[10px] font-mono text-[#52525B] dark:text-[#A1A1AA] tabular-nums shadow-2xs">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-slate-100/90 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 text-[10px] font-mono text-slate-600 dark:text-slate-300 tabular-nums shadow-2xs">
                 <Clock className="w-3 h-3 text-sky-500 animate-pulse" />
-                <span className="font-semibold text-[#111111] dark:text-zinc-200">{formattedLiveClock}</span>
-                <span className="opacity-40">|</span>
+                <span className="font-bold text-slate-900 dark:text-zinc-100">{formattedLiveClock}</span>
+                <span className="opacity-30">|</span>
                 <span>{formattedLiveDate}</span>
               </div>
-              <span className="text-[11px] text-[#A1A1AA] dark:text-[#71717A] tabular-nums hidden lg:inline">
+              <span className="text-[11px] text-slate-400 dark:text-slate-500 tabular-nums hidden lg:inline">
                 · {lastSavedText ? `Saved ${lastSavedText}` : 'Ready'}
               </span>
             </div>
@@ -212,32 +214,20 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Actions Toolbar */}
-        <div className="flex items-center gap-1.5 self-end md:self-auto flex-wrap">
+        <div className="flex items-center gap-1.5 self-end md:self-auto">
           {/* Spotlight Search (Ctrl+K) */}
           {onOpenCommandPalette && (
             <button
               type="button"
               onClick={onOpenCommandPalette}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] text-xs font-semibold text-[#71717A] dark:text-[#A1A1AA] hover:text-[#111111] dark:hover:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#202024] transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] text-xs font-semibold text-[#71717A] dark:text-[#A1A1AA] hover:text-[#111111] dark:hover:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#202024] transition-colors cursor-pointer"
               title="Spotlight Search & Quick Add (Ctrl+K / ⌘K)"
             >
               <Search className="w-3.5 h-3.5" />
-              <span className="hidden lg:inline">Search</span>
-              <kbd className="hidden lg:inline text-[9px] font-mono bg-[#FAFAFA] dark:bg-[#18181B] px-1 py-0.2 rounded border border-[#E5E7EB] dark:border-[#3F3F46]">
+              <span className="hidden sm:inline">Search</span>
+              <kbd className="hidden sm:inline text-[9px] font-mono bg-[#FAFAFA] dark:bg-[#18181B] px-1 py-0.2 rounded border border-[#E5E7EB] dark:border-[#3F3F46]">
                 ⌘K
               </kbd>
-            </button>
-          )}
-
-          {/* 1-Min Mindfulness Breathing */}
-          {onOpenBreathing && (
-            <button
-              type="button"
-              onClick={onOpenBreathing}
-              className="p-1.5 rounded-lg border border-sky-200 dark:border-sky-800/40 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/40 transition-colors cursor-pointer"
-              title="1-Minute Box Breathing (De-Stress & Center)"
-            >
-              <Wind className="w-4 h-4" />
             </button>
           )}
 
@@ -246,34 +236,24 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={onOpenRituals}
-              className="p-1.5 rounded-lg border border-amber-300 dark:border-amber-800/50 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-amber-300 dark:border-amber-800/60 bg-amber-50/60 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 hover:bg-amber-100/80 transition-colors cursor-pointer text-xs font-bold shadow-2xs"
               title="Daily Rituals: Morning Intentions & Evening Gratitude"
             >
-              <Flame className="w-4 h-4" />
+              <Flame className="w-3.5 h-3.5" />
+              <span className="hidden xl:inline">Rituals</span>
             </button>
           )}
 
-          {/* Time Capsule Future Letters */}
-          {onOpenLetters && (
+          {/* User Manual Guide */}
+          {onOpenManual && (
             <button
               type="button"
-              onClick={onOpenLetters}
-              className="p-1.5 rounded-lg border border-purple-200 dark:border-purple-800/50 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/40 transition-colors cursor-pointer"
-              title="Time Capsule: Letters to Future Self"
+              onClick={onOpenManual}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-sky-300 dark:border-sky-800/60 bg-sky-50/60 dark:bg-sky-950/30 text-sky-700 dark:text-sky-400 hover:bg-sky-100/80 transition-colors cursor-pointer text-xs font-bold shadow-2xs"
+              title="ব্যবহার নির্দেশিকা / App User Manual"
             >
-              <Mail className="w-4 h-4" />
-            </button>
-          )}
-
-          {/* Weekly Wrapped Celebration Story */}
-          {onOpenWrapped && (
-            <button
-              type="button"
-              onClick={onOpenWrapped}
-              className="p-1.5 rounded-lg border border-pink-300 dark:border-pink-800/50 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-950/40 transition-colors cursor-pointer"
-              title="Weekly Wrapped Celebration (Spotify-Style Story)"
-            >
-              <Sparkles className="w-4 h-4" />
+              <BookOpen className="w-3.5 h-3.5" />
+              <span className="hidden xl:inline">Guide</span>
             </button>
           )}
 
@@ -308,93 +288,167 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
-          {/* Weekly Achievement Card */}
-          {onOpenAchievementCard && (
+          {/* More Actions Dropdown Menu */}
+          <div className="relative">
             <button
               type="button"
-              onClick={onOpenAchievementCard}
-              className="p-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] text-amber-600 dark:text-amber-400 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors cursor-pointer"
-              title="Weekly Achievement Social Card (Shareable Image)"
+              onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
+              className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
+                isMoreMenuOpen
+                  ? 'border-[#111111] dark:border-white bg-[#F4F4F5] dark:bg-[#202024] text-[#111111] dark:text-white'
+                  : 'border-[#E5E7EB] dark:border-[#27272A] text-[#71717A] dark:text-[#A1A1AA] hover:text-[#111111] dark:hover:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#202024]'
+              }`}
+              title="More Options (Print, Export, Future Letters, Wrapped)"
             >
-              <Trophy className="w-4 h-4" />
+              <MoreVertical className="w-4 h-4" />
             </button>
-          )}
 
-          {/* Print View */}
-          <button
-            type="button"
-            onClick={onPrint}
-            className="p-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] text-[#71717A] dark:text-[#A1A1AA] hover:text-[#111111] dark:hover:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#202024] transition-colors cursor-pointer"
-            title="Print or Export PDF (Ctrl+P)"
-          >
-            <Printer className="w-4 h-4" />
-          </button>
+            {isMoreMenuOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setIsMoreMenuOpen(false)}
+                />
+                <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[#E5E7EB] dark:border-[#27272A] bg-white dark:bg-[#18181B] shadow-xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-0.5">
+                  {onOpenWrapped && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMoreMenuOpen(false);
+                        onOpenWrapped();
+                      }}
+                      className="w-full px-2.5 py-1.5 rounded-lg text-left text-xs font-medium text-[#111111] dark:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#27272A] flex items-center gap-2 cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-pink-500" />
+                      <span>Weekly Wrapped Story</span>
+                    </button>
+                  )}
 
-          {/* User Manual Guide */}
-          {onOpenManual && (
-            <button
-              type="button"
-              onClick={onOpenManual}
-              className="p-1.5 rounded-lg border border-sky-300 dark:border-sky-800/60 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/40 transition-colors cursor-pointer"
-              title="ব্যবহার নির্দেশিকা / App User Manual"
-            >
-              <BookOpen className="w-4 h-4" />
-            </button>
-          )}
+                  {onOpenLetters && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMoreMenuOpen(false);
+                        onOpenLetters();
+                      }}
+                      className="w-full px-2.5 py-1.5 rounded-lg text-left text-xs font-medium text-[#111111] dark:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#27272A] flex items-center gap-2 cursor-pointer"
+                    >
+                      <Mail className="w-3.5 h-3.5 text-purple-500" />
+                      <span>Letters to Future Self</span>
+                    </button>
+                  )}
 
-          {/* Sync to Apple/Google Calendar .ics */}
-          {onExportCalendar && (
-            <button
-              type="button"
-              onClick={onExportCalendar}
-              className="p-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] text-[#71717A] dark:text-[#A1A1AA] hover:text-[#111111] dark:hover:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#202024] transition-colors cursor-pointer"
-              title="Sync Schedule to Google / Apple Calendar (.ics file)"
-            >
-              <CalendarDays className="w-4 h-4" />
-            </button>
-          )}
+                  {onOpenBreathing && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMoreMenuOpen(false);
+                        onOpenBreathing();
+                      }}
+                      className="w-full px-2.5 py-1.5 rounded-lg text-left text-xs font-medium text-[#111111] dark:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#27272A] flex items-center gap-2 cursor-pointer"
+                    >
+                      <Wind className="w-3.5 h-3.5 text-sky-500" />
+                      <span>1-Min Breathing Exercise</span>
+                    </button>
+                  )}
 
-          {/* Shortcuts */}
-          <button
-            type="button"
-            onClick={onOpenShortcuts}
-            className="p-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] text-[#71717A] dark:text-[#A1A1AA] hover:text-[#111111] dark:hover:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#202024] transition-colors cursor-pointer"
-            title="Keyboard Shortcuts (Press ?)"
-          >
-            <Keyboard className="w-4 h-4" />
-          </button>
+                  {onOpenAchievementCard && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMoreMenuOpen(false);
+                        onOpenAchievementCard();
+                      }}
+                      className="w-full px-2.5 py-1.5 rounded-lg text-left text-xs font-medium text-[#111111] dark:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#27272A] flex items-center gap-2 cursor-pointer"
+                    >
+                      <Trophy className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Achievement Card (Share)</span>
+                    </button>
+                  )}
 
-          {/* Export JSON */}
-          <button
-            type="button"
-            onClick={onExport}
-            className="p-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] text-[#71717A] dark:text-[#A1A1AA] hover:text-[#111111] dark:hover:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#202024] transition-colors cursor-pointer"
-            title="Backup Data (JSON Export)"
-          >
-            <Download className="w-4 h-4" />
-          </button>
+                  <div className="h-px bg-[#E5E7EB] dark:bg-[#27272A] my-1" />
 
-          {/* Import JSON */}
-          <button
-            type="button"
-            onClick={onImport}
-            className="p-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] text-[#71717A] dark:text-[#A1A1AA] hover:text-[#111111] dark:hover:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#202024] transition-colors cursor-pointer"
-            title="Restore Data (JSON Import)"
-          >
-            <Upload className="w-4 h-4" />
-          </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMoreMenuOpen(false);
+                      onPrint();
+                    }}
+                    className="w-full px-2.5 py-1.5 rounded-lg text-left text-xs font-medium text-[#111111] dark:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#27272A] flex items-center gap-2 cursor-pointer"
+                  >
+                    <Printer className="w-3.5 h-3.5 text-[#71717A]" />
+                    <span>Print or PDF (Ctrl+P)</span>
+                  </button>
 
-          {/* Reset Week */}
-          <button
-            type="button"
-            onClick={onOpenResetModal}
-            className="p-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] text-[#71717A] dark:text-[#A1A1AA] hover:text-[#DC2626] hover:bg-[#FEE2E2] dark:hover:bg-red-950/40 transition-colors cursor-pointer"
-            title="Reset this week"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </button>
+                  {onExportCalendar && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMoreMenuOpen(false);
+                        onExportCalendar();
+                      }}
+                      className="w-full px-2.5 py-1.5 rounded-lg text-left text-xs font-medium text-[#111111] dark:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#27272A] flex items-center gap-2 cursor-pointer"
+                    >
+                      <CalendarDays className="w-3.5 h-3.5 text-[#71717A]" />
+                      <span>Sync Calendar (.ics)</span>
+                    </button>
+                  )}
 
-          {/* Manual Save */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMoreMenuOpen(false);
+                      onOpenShortcuts();
+                    }}
+                    className="w-full px-2.5 py-1.5 rounded-lg text-left text-xs font-medium text-[#111111] dark:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#27272A] flex items-center gap-2 cursor-pointer"
+                  >
+                    <Keyboard className="w-3.5 h-3.5 text-[#71717A]" />
+                    <span>Keyboard Shortcuts (?)</span>
+                  </button>
+
+                  <div className="h-px bg-[#E5E7EB] dark:bg-[#27272A] my-1" />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMoreMenuOpen(false);
+                      onExport();
+                    }}
+                    className="w-full px-2.5 py-1.5 rounded-lg text-left text-xs font-medium text-[#111111] dark:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#27272A] flex items-center gap-2 cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5 text-[#71717A]" />
+                    <span>Backup Data (JSON)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMoreMenuOpen(false);
+                      onImport();
+                    }}
+                    className="w-full px-2.5 py-1.5 rounded-lg text-left text-xs font-medium text-[#111111] dark:text-white hover:bg-[#F4F4F5] dark:hover:bg-[#27272A] flex items-center gap-2 cursor-pointer"
+                  >
+                    <Upload className="w-3.5 h-3.5 text-[#71717A]" />
+                    <span>Restore Data (JSON)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMoreMenuOpen(false);
+                      onOpenResetModal();
+                    }}
+                    className="w-full px-2.5 py-1.5 rounded-lg text-left text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 flex items-center gap-2 cursor-pointer"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Reset This Week</span>
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Manual Save Button */}
           <button
             type="button"
             onClick={handleManualSave}

@@ -17,6 +17,7 @@ import { WeekNavigation } from './components/WeekNavigation';
 import { DailyPlanner } from './components/DailyPlanner';
 import { MasterTodoList } from './components/MasterTodoList';
 import { HabitTracker } from './components/HabitTracker';
+import { MonthlyAestheticHabitTracker } from './components/MonthlyAestheticHabitTracker';
 import { GoalsSection } from './components/GoalsSection';
 import { WeeklyReview } from './components/WeeklyReview';
 import { ResetModal } from './components/ResetModal';
@@ -32,6 +33,7 @@ import { DailyRitualsModal } from './components/DailyRitualsModal';
 import { FutureLettersModal } from './components/FutureLettersModal';
 import { WeeklyWrappedModal } from './components/WeeklyWrappedModal';
 import { UserManualModal } from './components/UserManualModal';
+import { NavigationTabs, PlannerViewMode } from './components/NavigationTabs';
 import {
   PlannerState,
   WeeklyReview as WeeklyReviewType,
@@ -44,6 +46,7 @@ import {
   UserProfile,
   ThemeType,
   ScratchNote,
+  Task,
 } from './types/planner';
 import {
   getMondayOfWeek,
@@ -51,10 +54,10 @@ import {
   getWeekDaysInfo,
 } from './utils/dateUtils';
 import { plannerStorage } from './storage/plannerStorage';
-import { playTaskCompleteSound } from './utils/soundEffects';
+import { playTaskCompleteSound, playReminderAlarmSound } from './utils/soundEffects';
 import { fireConfetti } from './utils/confetti';
 import { downloadIcsFile } from './utils/icsExport';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Bell, Check } from 'lucide-react';
 
 const ENCOURAGING_MESSAGES = [
   '🔥 Fantastic work! Momentum is building!',
@@ -135,6 +138,7 @@ export default function App() {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
   const [backupModalMode, setBackupModalMode] = useState<'export' | 'import' | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [currentNavTab, setCurrentNavTab] = useState<PlannerViewMode>('monthly');
 
   // Aesthetic Color Theme
   const [currentTheme, setCurrentTheme] = useState<ThemeType>(() => {
@@ -344,13 +348,23 @@ export default function App() {
   );
 
   const handleAddTask = useCallback(
-    (dayIndex: number, title: string, time?: string) => {
+    (
+      dayIndex: number,
+      title: string,
+      time?: string,
+      reminder?: boolean,
+      endTime?: string,
+      reminderTiming?: 'exact' | '5m' | '10m' | '15m'
+    ) => {
       const newTask = {
         id: `task-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
         title,
         completed: false,
         priority: 'normal' as const,
         time,
+        endTime,
+        reminder: reminder ?? false,
+        reminderTiming: reminderTiming || 'exact',
       };
 
       setPlannerState((prev) => {
@@ -371,7 +385,15 @@ export default function App() {
   );
 
   const handleEditTask = useCallback(
-    (dayIndex: number, taskId: string, newTitle: string, newTime?: string) => {
+    (
+      dayIndex: number,
+      taskId: string,
+      newTitle: string,
+      newTime?: string,
+      reminder?: boolean,
+      newEndTime?: string,
+      reminderTiming?: 'exact' | '5m' | '10m' | '15m'
+    ) => {
       setPlannerState((prev) => {
         const days = ensureDays(prev.days);
         return {
@@ -381,12 +403,74 @@ export default function App() {
             return {
               ...day,
               tasks: day.tasks.map((task) =>
-                task.id === taskId ? { ...task, title: newTitle, time: newTime } : task
+                task.id === taskId
+                  ? {
+                      ...task,
+                      title: newTitle,
+                      time: newTime,
+                      endTime: newEndTime !== undefined ? newEndTime : task.endTime,
+                      reminder: reminder !== undefined ? reminder : task.reminder,
+                      reminderTiming: reminderTiming !== undefined ? reminderTiming : task.reminderTiming,
+                      reminderNotified: false,
+                    }
+                  : task
               ),
             };
           }),
         };
       });
+    },
+    [ensureDays]
+  );
+
+  const handleToggleReminder = useCallback(
+    (dayIndex: number, taskId: string) => {
+      setPlannerState((prev) => {
+        const days = ensureDays(prev.days);
+        return {
+          ...prev,
+          days: days.map((day, idx) => {
+            if (idx !== dayIndex) return day;
+            return {
+              ...day,
+              tasks: day.tasks.map((task) => {
+                if (task.id !== taskId) return task;
+                const willRemind = !task.reminder;
+                if (willRemind && 'Notification' in window && Notification.permission !== 'granted') {
+                  Notification.requestPermission();
+                }
+                return { ...task, reminder: willRemind, reminderNotified: false };
+              }),
+            };
+          }),
+        };
+      });
+      setToastMessage('🔔 রিমাইন্ডার অ্যালার্ট আপডেট করা হয়েছে');
+      setTimeout(() => setToastMessage(null), 2000);
+    },
+    [ensureDays]
+  );
+
+  const handleSortTasksByTime = useCallback(
+    (dayIndex: number) => {
+      setPlannerState((prev) => {
+        const days = ensureDays(prev.days);
+        return {
+          ...prev,
+          days: days.map((day, idx) => {
+            if (idx !== dayIndex) return day;
+            const sortedTasks = [...day.tasks].sort((a, b) => {
+              if (!a.time && !b.time) return 0;
+              if (!a.time) return 1;
+              if (!b.time) return -1;
+              return a.time.localeCompare(b.time);
+            });
+            return { ...day, tasks: sortedTasks };
+          }),
+        };
+      });
+      setToastMessage('⏱️ সময় অনুযায়ী ক্রমানুসারে সাজানো হয়েছে!');
+      setTimeout(() => setToastMessage(null), 2500);
     },
     [ensureDays]
   );
@@ -456,6 +540,92 @@ export default function App() {
               ),
             };
           }),
+        };
+      });
+    },
+    [ensureDays]
+  );
+
+  const handlePostponeTask = useCallback(
+    (dayIndex: number, taskId: string) => {
+      setPlannerState((prev) => {
+        const days = ensureDays(prev.days);
+        const currentDay = days[dayIndex];
+        const taskToMove = currentDay?.tasks.find((t) => t.id === taskId);
+        if (!taskToMove) return prev;
+
+        const nextDayIndex = (dayIndex + 1) % 7;
+        const nextDayName = daysInfo[nextDayIndex]?.dayName || 'Tomorrow';
+
+        setToastMessage(`✓ Postponed to ${nextDayName}!`);
+        setTimeout(() => setToastMessage(null), 2500);
+
+        return {
+          ...prev,
+          days: days.map((day, idx) => {
+            if (idx === dayIndex) {
+              return {
+                ...day,
+                tasks: day.tasks.filter((t) => t.id !== taskId),
+              };
+            }
+            if (idx === nextDayIndex) {
+              return {
+                ...day,
+                tasks: [...day.tasks, { ...taskToMove, completed: false }],
+              };
+            }
+            return day;
+          }),
+        };
+      });
+    },
+    [ensureDays, daysInfo]
+  );
+
+  const handleDuplicateTask = useCallback(
+    (dayIndex: number, taskId: string) => {
+      setPlannerState((prev) => {
+        const days = ensureDays(prev.days);
+        const currentDay = days[dayIndex];
+        const taskToClone = currentDay?.tasks.find((t) => t.id === taskId);
+        if (!taskToClone) return prev;
+
+        const cloned = {
+          ...taskToClone,
+          id: `task-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+          title: `${taskToClone.title} (Copy)`,
+          completed: false,
+        };
+
+        setToastMessage('✓ Duplicated task!');
+        setTimeout(() => setToastMessage(null), 2000);
+
+        return {
+          ...prev,
+          days: days.map((day, idx) =>
+            idx === dayIndex ? { ...day, tasks: [...day.tasks, cloned] } : day
+          ),
+        };
+      });
+    },
+    [ensureDays]
+  );
+
+  const handleClearCompletedTasks = useCallback(
+    (dayIndex: number) => {
+      setPlannerState((prev) => {
+        const days = ensureDays(prev.days);
+        const count = days[dayIndex]?.tasks.filter((t) => t.completed).length || 0;
+        if (count > 0) {
+          setToastMessage(`✓ Cleared ${count} completed tasks!`);
+          setTimeout(() => setToastMessage(null), 2500);
+        }
+        return {
+          ...prev,
+          days: days.map((day, idx) =>
+            idx === dayIndex ? { ...day, tasks: day.tasks.filter((t) => !t.completed) } : day
+          ),
         };
       });
     },
@@ -685,6 +855,68 @@ export default function App() {
     [handleAddTask, daysInfo]
   );
 
+  const handleClearCompletedTodos = useCallback(() => {
+    setPlannerState((prev) => ({
+      ...prev,
+      masterTodos: (prev.masterTodos || []).filter((t) => !t.completed),
+    }));
+    setToastMessage('✓ Cleaned up completed backlog tasks!');
+    setTimeout(() => setToastMessage(null), 2500);
+  }, []);
+
+  const handleEditTodo = useCallback(
+    (
+      id: string,
+      newTitle: string,
+      priority?: MasterTodo['priority'],
+      category?: MasterTodo['category']
+    ) => {
+      setPlannerState((prev) => ({
+        ...prev,
+        masterTodos: (prev.masterTodos || []).map((t) =>
+          t.id === id
+            ? {
+                ...t,
+                title: newTitle,
+                ...(priority ? { priority } : {}),
+                ...(category ? { category } : {}),
+              }
+            : t
+        ),
+      }));
+    },
+    []
+  );
+
+  const handleMarkAllHabitsToday = useCallback(
+    (dayIndex: number) => {
+      setPlannerState((prev) => {
+        const allChecked = prev.habits.every((h) => h.completed[dayIndex]);
+        const newState = !allChecked;
+
+        if (newState) {
+          playTaskCompleteSound();
+          triggerEncouragement();
+          setToastMessage('🎉 All Habits Completed for Today! Unstoppable!');
+          setTimeout(() => setToastMessage(null), 2500);
+        } else {
+          setToastMessage('Habits unchecked for today');
+          setTimeout(() => setToastMessage(null), 2000);
+        }
+
+        return {
+          ...prev,
+          habits: prev.habits.map((habit) => {
+            const newCompleted = [...habit.completed];
+            newCompleted[dayIndex] = newState;
+            return { ...habit, completed: newCompleted };
+          }),
+        };
+      });
+    },
+    [triggerEncouragement]
+  );
+
   // Long & Short Term Goals Handlers
   const handleAddLongGoal = useCallback(
     (title: string, timeframe: string, category: LongTermGoal['category']) => {
@@ -908,6 +1140,158 @@ export default function App() {
     daysInfo,
   ]);
 
+  // Active Task Reminder Popup state
+  const [dueReminderTask, setDueReminderTask] = useState<{
+    task: Task;
+    dayIndex: number;
+    dayName: string;
+  } | null>(null);
+
+  const handleSnoozeReminder = useCallback((taskId: string, dayIndex: number) => {
+    setPlannerState((prev) => {
+      const days = ensureDays(prev.days);
+      return {
+        ...prev,
+        days: days.map((d, dIdx) =>
+          dIdx !== dayIndex
+            ? d
+            : {
+                ...d,
+                tasks: d.tasks.map((t) =>
+                  t.id === taskId
+                    ? {
+                        ...t,
+                        reminderNotified: false,
+                        snoozeUntil: Date.now() + 5 * 60 * 1000,
+                      }
+                    : t
+                ),
+              }
+        ),
+      };
+    });
+    setDueReminderTask(null);
+    setToastMessage('⏰ ৫ মিনিট পর আবার রিমাইন্ডার বাজবে!');
+    setTimeout(() => setToastMessage(null), 3000);
+  }, [ensureDays]);
+
+  const handleCompleteReminderTask = useCallback((taskId: string, dayIndex: number) => {
+    handleToggleTask(dayIndex, taskId);
+    setDueReminderTask(null);
+    setToastMessage('🎉 অসাধারণ! কাজটি সম্পন্ন হয়েছে!');
+    setTimeout(() => setToastMessage(null), 3000);
+  }, [handleToggleTask]);
+
+  const handleTestReminder = useCallback(() => {
+    playReminderAlarmSound();
+    if ('Notification' in window && Notification.permission !== 'granted') {
+      Notification.requestPermission();
+    }
+    const sampleTask: Task = {
+      id: `test-remind-${Date.now()}`,
+      title: 'দৈনিক শিডিউল রিভিশন ও প্রয়োজনীয় কাজ 📚',
+      completed: false,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      reminder: true,
+      priority: 'high',
+    };
+    const tIdx = daysInfo.findIndex((d) => d.isToday);
+    const validIdx = tIdx !== -1 ? tIdx : 0;
+    setDueReminderTask({
+      task: sampleTask,
+      dayIndex: validIdx,
+      dayName: daysInfo[validIdx]?.dayName || 'আজ',
+    });
+    setToastMessage('🔔 রিমাইন্ডার অ্যালার্ট সফলভাবে টেস্ট করা হয়েছে!');
+    setTimeout(() => setToastMessage(null), 3000);
+  }, [daysInfo]);
+
+  // Real-time Reminder Watcher for Today's Scheduled Tasks
+  useEffect(() => {
+    const parseTimeToMinutes = (timeStr: string): number | null => {
+      if (!timeStr) return null;
+      const cleaned = timeStr.trim().toUpperCase();
+      const isPM = cleaned.includes('PM');
+      const isAM = cleaned.includes('AM');
+      const timeOnly = cleaned.replace(/AM|PM/g, '').trim();
+      const parts = timeOnly.split(':');
+      if (parts.length < 2) return null;
+      let hours = parseInt(parts[0], 10);
+      const minutes = parseInt(parts[1], 10);
+      if (isNaN(hours) || isNaN(minutes)) return null;
+
+      if (isPM && hours < 12) hours += 12;
+      if (isAM && hours === 12) hours = 0;
+
+      return hours * 60 + minutes;
+    };
+
+    const reminderInterval = setInterval(() => {
+      const now = new Date();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+      const todayIdx = daysInfo.findIndex((d) => d.isToday);
+      if (todayIdx === -1) return;
+
+      const todayPlan = plannerState.days[todayIdx];
+      if (!todayPlan) return;
+
+      todayPlan.tasks.forEach((task) => {
+        if (!task.completed && task.reminder && task.time && !task.reminderNotified) {
+          if (task.snoozeUntil && Date.now() < task.snoozeUntil) {
+            return;
+          }
+
+          const baseTaskMinutes = parseTimeToMinutes(task.time);
+          if (baseTaskMinutes === null) return;
+
+          let targetMinutes = baseTaskMinutes;
+          if (task.reminderTiming === '5m') targetMinutes -= 5;
+          else if (task.reminderTiming === '10m') targetMinutes -= 10;
+          else if (task.reminderTiming === '15m') targetMinutes -= 15;
+
+          if (Math.abs(currentMinutes - targetMinutes) <= 1) {
+            playReminderAlarmSound();
+            if ('Notification' in window && Notification.permission === 'granted') {
+              try {
+                new Notification(`⏰ কাজের সময় হয়েছে: ${task.title}`, {
+                  body: `নির্ধারিত সময়: ${task.time} (${daysInfo[todayIdx]?.dayName})`,
+                  icon: '/favicon.ico',
+                });
+              } catch {
+                // ignore
+              }
+            }
+
+            setDueReminderTask({
+              task,
+              dayIndex: todayIdx,
+              dayName: daysInfo[todayIdx]?.dayName || 'আজ',
+            });
+
+            setToastMessage(`⏰ রিমাইন্ডার: "${task.title}" করার সময় হয়েছে! (${task.time})`);
+            setTimeout(() => setToastMessage(null), 6000);
+
+            // Mark task as notified
+            setPlannerState((prev) => ({
+              ...prev,
+              days: prev.days.map((d, dIdx) =>
+                dIdx !== todayIdx
+                  ? d
+                  : {
+                      ...d,
+                      tasks: d.tasks.map((t) => (t.id === task.id ? { ...t, reminderNotified: true } : t)),
+                    }
+              ),
+            }));
+          }
+        }
+      });
+    }, 10000);
+
+    return () => clearInterval(reminderInterval);
+  }, [daysInfo, plannerState.days]);
+
   // Overall Task metrics for gamification
   const totalTasksCount = plannerState.days.reduce((acc, d) => acc + d.tasks.length, 0);
   const completedTasksCount = plannerState.days.reduce(
@@ -931,6 +1315,63 @@ export default function App() {
         <div className="fixed top-20 right-6 z-50 bg-[#111111] dark:bg-white text-white dark:text-[#111111] px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 border border-white/20 dark:border-black/20 animate-in slide-in-from-top-4 duration-200">
           <Sparkles className="w-4 h-4 text-amber-400 dark:text-amber-500 shrink-0" />
           <span className="text-xs font-bold tracking-wide">{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Floating Active Task Reminder Popup Card */}
+      {dueReminderTask && (
+        <div className="fixed bottom-6 right-6 z-50 max-w-sm w-full bg-white dark:bg-[#18181B] text-slate-900 dark:text-white rounded-2xl shadow-2xl border-2 border-amber-400 dark:border-amber-500 p-4 animate-in slide-in-from-bottom-5 duration-300 ring-4 ring-amber-400/20">
+          <div className="flex items-start gap-3">
+            <div className="p-2.5 bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 rounded-xl shrink-0">
+              <Bell className="w-5 h-5 fill-current animate-bounce" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono font-black text-amber-800 dark:text-amber-300 uppercase tracking-wider bg-amber-100/80 dark:bg-amber-900/60 px-2 py-0.5 rounded-full">
+                  ⏰ কাজের সময় হয়েছে
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono font-bold">
+                  {dueReminderTask.task.time}
+                </span>
+              </div>
+              <h4 className="text-sm font-extrabold text-slate-900 dark:text-white mt-1 break-words">
+                {dueReminderTask.task.title}
+              </h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                {dueReminderTask.dayName}-এর শিডিউলে নির্ধারিত কাজ
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100 dark:border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => handleCompleteReminderTask(dueReminderTask.task.id, dueReminderTask.dayIndex)}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
+                >
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>সম্পন্ন করেছি</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSnoozeReminder(dueReminderTask.task.id, dueReminderTask.dayIndex)}
+                  className="inline-flex items-center justify-center gap-1 py-2 px-3 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold transition-all cursor-pointer"
+                  title="৫ মিনিট পরে আবার মনে করাবে"
+                >
+                  <span>৫মি স্নুজ</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setDueReminderTask(null)}
+                  className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-xl cursor-pointer"
+                  title="বন্ধ করুন"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -972,144 +1413,141 @@ export default function App() {
         }}
       />
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Motivational Banner & Gamification Level XP */}
-        <MotivationalBanner
-          completedTasksCount={completedTasksCount}
-          totalTasksCount={totalTasksCount}
-          habitStreakCount={habitStreakCount}
-        />
+      {/* Clean Segmented Navigation Tabs */}
+      <NavigationTabs
+        currentTab={currentNavTab}
+        onChangeTab={setCurrentNavTab}
+        tasksCount={completedTasksCount}
+        habitsCount={habitStreakCount}
+      />
 
-        {/* Feature #5: Daily Quran Verse / Spiritual Anchor */}
-        <DailyVerseCard />
+      {/* Main Clean Container */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* 1. Monthly Aesthetic Habit Tracker (Clean Google Sheets view) */}
+        {currentNavTab === 'monthly' && (
+          <MonthlyAestheticHabitTracker />
+        )}
 
-        {/* Feature #4: Daily Hydration Tracker (2 Liters Target) */}
-        <WaterTracker
-          currentGlasses={currentWaterGlasses}
-          onUpdateGlasses={(glasses) => handleUpdateWater(selectedDayForWater, glasses)}
-          dayLabel={daysInfo[selectedDayForWater]?.dayName || 'Today'}
-        />
+        {/* 2. Daily Execution & Tasks */}
+        {currentNavTab === 'planner' && (
+          <div className="space-y-6">
+            <WeeklyStatsSummary
+              weekStart={currentWeekStart}
+              days={plannerState.days}
+              habits={plannerState.habits}
+              activeDayIndex={activeDayIndex}
+              onSelectDay={handleSelectDay}
+            />
 
-        {/* Unlockable Badges Showcase & Trophy Room */}
-        <BadgesShowcase plannerState={plannerState} />
+            <WeekNavigation
+              weekStart={currentWeekStart}
+              days={plannerState.days}
+              activeDayIndex={activeDayIndex}
+              onSelectDay={handleSelectDay}
+            />
 
-        {/* Pomodoro Focus & Synthesized Ambient Sound Station */}
-        <PomodoroTimer />
+            <DailyPlanner
+              daysInfo={daysInfo}
+              days={plannerState.days}
+              activeDayIndex={activeDayIndex}
+              onToggleTask={handleToggleTask}
+              onAddTask={handleAddTask}
+              onEditTask={handleEditTask}
+              onDeleteTask={handleDeleteTask}
+              onMoveTask={handleMoveTask}
+              onTogglePriority={handleTogglePriority}
+              onToggleReminder={handleToggleReminder}
+              onSortTasksByTime={handleSortTasksByTime}
+              onUpdateNote={handleUpdateNote}
+              onUpdateMood={handleUpdateMood}
+              onTogglePrayer={handleTogglePrayer}
+              onUpdateWater={handleUpdateWater}
+              onUpdateWin={handleUpdateWin}
+              onPostponeTask={handlePostponeTask}
+              onDuplicateTask={handleDuplicateTask}
+              onClearCompletedTasks={handleClearCompletedTasks}
+              onTriggerTestReminder={handleTestReminder}
+            />
 
-        {/* Weekly Focus & Reward Section */}
-        <WeeklyFocusReward
-          weekStart={currentWeekStart}
-          focus={plannerState.focus}
-          objective={plannerState.objective}
-          reward={plannerState.reward}
-          onUpdateFocus={handleUpdateFocus}
-          onUpdateReward={handleUpdateReward}
-        />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <BrainDumpScratchpad
+                notes={scratchNotes}
+                onAddNote={handleAddScratchNote}
+                onDeleteNote={handleDeleteScratchNote}
+                onTransferToDay={(noteId, content, dayIdx) => {
+                  handleAddTask(dayIdx, content);
+                  handleDeleteScratchNote(noteId);
+                  setToastMessage(`✓ Moved thought to ${daysInfo[dayIdx]?.dayName || 'Day'}!`);
+                  setTimeout(() => setToastMessage(null), 2500);
+                }}
+                daysInfo={daysInfo}
+              />
+              <MasterTodoList
+                todos={plannerState.masterTodos || []}
+                daysInfo={daysInfo}
+                onToggleTodo={handleToggleTodo}
+                onAddTodo={handleAddTodo}
+                onDeleteTodo={handleDeleteTodo}
+                onAssignToDay={handleAssignTodoToDay}
+                onClearCompletedTodos={handleClearCompletedTodos}
+                onEditTodo={handleEditTodo}
+              />
+            </div>
+          </div>
+        )}
 
-        {/* Life Balance & 5 Pillars Holistic Radar Index */}
-        <LifeBalanceScore
-          habits={plannerState.habits}
-          days={plannerState.days}
-        />
+        {/* 3. Goals & Priorities */}
+        {currentNavTab === 'focus' && (
+          <div className="space-y-6">
+            <WeeklyFocusReward
+              weekStart={currentWeekStart}
+              focus={plannerState.focus}
+              objective={plannerState.objective}
+              reward={plannerState.reward}
+              onUpdateFocus={handleUpdateFocus}
+              onUpdateReward={handleUpdateReward}
+            />
+            <GoalsSection
+              longTermGoals={plannerState.longTermGoals || []}
+              shortTermGoals={plannerState.shortTermGoals || []}
+              onAddLongGoal={handleAddLongGoal}
+              onUpdateLongGoalProgress={handleUpdateLongGoalProgress}
+              onToggleMilestone={handleToggleMilestone}
+              onAddMilestone={handleAddMilestone}
+              onDeleteLongGoal={handleDeleteLongGoal}
+              onAddShortGoal={handleAddShortGoal}
+              onToggleShortGoalStatus={handleToggleShortGoalStatus}
+              onDeleteShortGoal={handleDeleteShortGoal}
+            />
+          </div>
+        )}
 
-        {/* Overall Progress & 7-Day Completion Bar Chart */}
-        <WeeklyStatsSummary
-          weekStart={currentWeekStart}
-          days={plannerState.days}
-          habits={plannerState.habits}
-          activeDayIndex={activeDayIndex}
-          onSelectDay={handleSelectDay}
-        />
+        {/* 4. Weekly Review & Reflection */}
+        {currentNavTab === 'mindset' && (
+          <div className="space-y-6">
+            <WeeklyReview
+              review={plannerState.review}
+              onChangeReviewField={handleChangeReviewField}
+            />
+          </div>
+        )}
 
-        {/* Week Day Quick Navigation Strip */}
-        <WeekNavigation
-          weekStart={currentWeekStart}
-          days={plannerState.days}
-          activeDayIndex={activeDayIndex}
-          onSelectDay={handleSelectDay}
-        />
-
-        {/* 7-Day Planner Grid (with Time-blocking, Daily Win & Salah & Water) */}
-        <DailyPlanner
-          daysInfo={daysInfo}
-          days={plannerState.days}
-          activeDayIndex={activeDayIndex}
-          onToggleTask={handleToggleTask}
-          onAddTask={handleAddTask}
-          onEditTask={handleEditTask}
-          onDeleteTask={handleDeleteTask}
-          onMoveTask={handleMoveTask}
-          onTogglePriority={handleTogglePriority}
-          onUpdateNote={handleUpdateNote}
-          onUpdateMood={handleUpdateMood}
-          onTogglePrayer={handleTogglePrayer}
-          onUpdateWater={handleUpdateWater}
-          onUpdateWin={handleUpdateWin}
-        />
-
-        {/* Daily Brain Dump & Scratchpad */}
-        <BrainDumpScratchpad
-          notes={scratchNotes}
-          onAddNote={handleAddScratchNote}
-          onDeleteNote={handleDeleteScratchNote}
-          onTransferToDay={(noteId, content, dayIdx) => {
-            handleAddTask(dayIdx, content);
-            handleDeleteScratchNote(noteId);
-            setToastMessage(`✓ Moved thought to ${daysInfo[dayIdx]?.dayName || 'Day'}!`);
-            setTimeout(() => setToastMessage(null), 2500);
-          }}
-          daysInfo={daysInfo}
-        />
-
-        {/* Master To-Do & Backlog Quick Capture */}
-        <MasterTodoList
-          todos={plannerState.masterTodos || []}
-          daysInfo={daysInfo}
-          onToggleTodo={handleToggleTodo}
-          onAddTodo={handleAddTodo}
-          onDeleteTodo={handleDeleteTodo}
-          onAssignToDay={handleAssignTodoToDay}
-        />
-
-        {/* Categorized Habit Tracker Matrix */}
-        <HabitTracker
-          habits={plannerState.habits}
-          daysInfo={daysInfo}
-          onToggleHabitDay={handleToggleHabitDay}
-          onAddHabit={handleAddHabit}
-          onRenameHabit={handleRenameHabit}
-          onDeleteHabit={handleDeleteHabit}
-          onMoveHabit={handleMoveHabit}
-        />
-
-        {/* Life Goals & Vision Hub (Long-Term & Short-Term) */}
-        <GoalsSection
-          longTermGoals={plannerState.longTermGoals || []}
-          shortTermGoals={plannerState.shortTermGoals || []}
-          onAddLongGoal={handleAddLongGoal}
-          onUpdateLongGoalProgress={handleUpdateLongGoalProgress}
-          onToggleMilestone={handleToggleMilestone}
-          onAddMilestone={handleAddMilestone}
-          onDeleteLongGoal={handleDeleteLongGoal}
-          onAddShortGoal={handleAddShortGoal}
-          onToggleShortGoalStatus={handleToggleShortGoalStatus}
-          onDeleteShortGoal={handleDeleteShortGoal}
-        />
-
-        {/* Weekly Review & Reflection */}
-        <WeeklyReview
-          review={plannerState.review}
-          onChangeReviewField={handleChangeReviewField}
-        />
+        {/* 5. Deep Work Pomodoro Focus Station */}
+        {currentNavTab === 'timer' && (
+          <div className="max-w-2xl mx-auto py-6">
+            <PomodoroTimer />
+          </div>
+        )}
       </main>
 
       {/* Editorial Footer */}
-      <footer className="border-t border-[#E5E7EB] dark:border-[#27272A] bg-white dark:bg-[#18181B] py-4 px-4 sm:px-6 text-center text-xs text-[#71717A] dark:text-[#A1A1AA] transition-colors">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Weekly Life Planner · Built for {userProfile.name}</span>
-          <span className="font-mono text-[11px] text-[#A1A1AA] dark:text-[#71717A]">
-            Data saved locally in browser · Press ⌘K or ? for shortcuts
+      <footer className="border-t border-slate-200/80 dark:border-slate-800/80 bg-white/70 dark:bg-[#0B0F17]/70 backdrop-blur-xl py-5 px-4 sm:px-6 text-center text-xs text-slate-500 dark:text-slate-400 transition-colors shadow-2xs mt-8">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <span className="font-semibold text-slate-700 dark:text-slate-300">
+            Weekly Life Planner · Crafted for {userProfile.name}
+          </span>
+          <span className="font-mono text-[11px] text-slate-400 dark:text-slate-500">
+            Local & Private · Press ⌘K for Command Palette
           </span>
         </div>
       </footer>

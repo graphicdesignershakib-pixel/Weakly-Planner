@@ -8,6 +8,11 @@ export type Task = {
   completed: boolean;
   priority?: 'high' | 'normal';
   time?: string; // e.g. "09:30 AM" or "14:00"
+  endTime?: string; // e.g. "10:30 AM"
+  reminder?: boolean; // reminder alert enabled
+  reminderTiming?: 'exact' | '5m' | '10m' | '15m'; // when to trigger reminder
+  reminderNotified?: boolean; // whether alert was already triggered for today
+  snoozeUntil?: number; // timestamp in ms if snoozed
 };
 
 export type DayMood = 'fire' | 'focus' | 'calm' | 'tired' | 'rest';

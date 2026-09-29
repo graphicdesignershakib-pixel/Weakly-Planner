@@ -48,15 +48,15 @@ export const LifeBalanceScore: React.FC<LifeBalanceScoreProps> = ({ habits, days
   };
 
   return (
-    <section aria-labelledby="life-balance-heading" className="bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] rounded-xl p-4 sm:p-6 shadow-xs transition-colors">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#F4F4F5] dark:border-[#27272A]">
-        <div className="flex items-center gap-2.5">
-          <span className="p-2 bg-[#111111] dark:bg-white text-white dark:text-[#111111] rounded-lg shadow-xs">
+    <section aria-labelledby="life-balance-heading" className="bg-white/80 dark:bg-[#111827]/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-md transition-all luxury-card">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/60">
+        <div className="flex items-center gap-3">
+          <span className="p-2.5 bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-500 text-white rounded-xl shadow-md shadow-emerald-500/20">
             <PieChart className="w-4 h-4" />
           </span>
           <div>
             <div className="flex items-center gap-2">
-              <h2 id="life-balance-heading" className="text-base font-bold text-[#111111] dark:text-white tracking-tight">
+              <h2 id="life-balance-heading" className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                 Life Balance & Holistic Alignment Index
               </h2>
               <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50 px-2 py-0.5 rounded-full">

@@ -47,53 +47,53 @@ export const WeeklyStatsSummary: React.FC<WeeklyStatsSummaryProps> = ({
   });
 
   return (
-    <div className="bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] rounded-xl p-4 sm:p-5 transition-colors shadow-xs">
+    <div className="bg-white/80 dark:bg-[#111827]/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 sm:p-6 transition-all shadow-sm hover:shadow-md luxury-card">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
         {/* Metric Cards (5 cols on large desktop) */}
         <div className="lg:col-span-5 grid grid-cols-2 gap-3">
           {/* Task Completion Percentage */}
-          <div className="bg-[#F8F9FA] dark:bg-[#121214] border border-[#E5E7EB] dark:border-[#27272A] p-3.5 rounded-lg transition-colors">
-            <div className="flex items-center justify-between text-[#71717A] dark:text-[#A1A1AA] mb-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider">
+          <div className="bg-slate-50/80 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 p-4 rounded-xl transition-all shadow-inner">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider font-mono">
                 Tasks Done
               </span>
-              <CheckSquare className="w-3.5 h-3.5 text-[#111111] dark:text-white" />
+              <CheckSquare className="w-3.5 h-3.5 text-indigo-500" />
             </div>
             <div className="flex items-baseline justify-between mt-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#111111] dark:text-white tabular-nums tracking-tight">
+              <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tabular-nums tracking-tight">
                 {taskProgress.percentage}%
               </span>
-              <span className="text-xs text-[#71717A] dark:text-[#A1A1AA] font-mono">
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
                 {taskProgress.completed}/{taskProgress.total}
               </span>
             </div>
-            <div className="w-full bg-[#E5E7EB] dark:bg-[#27272A] h-1.5 rounded-full overflow-hidden mt-2.5">
+            <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden mt-2.5">
               <div
-                className="bg-[#111111] dark:bg-white h-full rounded-full transition-all duration-300"
+                className="bg-indigo-600 dark:bg-indigo-400 h-full rounded-full transition-all duration-500"
                 style={{ width: `${taskProgress.percentage}%` }}
               />
             </div>
           </div>
 
           {/* Habit Consistency Percentage */}
-          <div className="bg-[#F8F9FA] dark:bg-[#121214] border border-[#E5E7EB] dark:border-[#27272A] p-3.5 rounded-lg transition-colors">
-            <div className="flex items-center justify-between text-[#71717A] dark:text-[#A1A1AA] mb-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider">
+          <div className="bg-slate-50/80 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 p-4 rounded-xl transition-all shadow-inner">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider font-mono">
                 Habit Streak
               </span>
               <Flame className="w-3.5 h-3.5 text-amber-500" />
             </div>
             <div className="flex items-baseline justify-between mt-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#111111] dark:text-white tabular-nums tracking-tight">
+              <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tabular-nums tracking-tight">
                 {habitProgress.percentage}%
               </span>
-              <span className="text-xs text-[#71717A] dark:text-[#A1A1AA] font-mono">
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
                 {habitProgress.completed}/{habitProgress.total}
               </span>
             </div>
-            <div className="w-full bg-[#E5E7EB] dark:bg-[#27272A] h-1.5 rounded-full overflow-hidden mt-2.5">
+            <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden mt-2.5">
               <div
-                className="bg-amber-500 h-full rounded-full transition-all duration-300"
+                className="bg-gradient-to-r from-amber-500 to-orange-400 h-full rounded-full transition-all duration-500"
                 style={{ width: `${habitProgress.percentage}%` }}
               />
             </div>

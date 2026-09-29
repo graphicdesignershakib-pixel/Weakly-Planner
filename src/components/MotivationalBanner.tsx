@@ -51,33 +51,34 @@ export const MotivationalBanner: React.FC<MotivationalBannerProps> = ({
   const xpInCurrentLevel = xp % 100;
 
   return (
-    <div className="bg-gradient-to-r from-[#111111] to-[#27272A] text-white rounded-xl p-4 sm:p-5 shadow-sm border border-[#27272A] relative overflow-hidden">
+    <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 sm:p-6 shadow-xl border border-indigo-500/20 relative overflow-hidden luxury-card">
       {/* Background subtle decorative flare */}
-      <div className="absolute right-0 top-0 w-96 h-full bg-radial from-white/5 to-transparent pointer-events-none" />
+      <div className="absolute right-0 top-0 w-96 h-full bg-radial from-indigo-500/15 via-purple-500/5 to-transparent pointer-events-none" />
+      <div className="absolute -left-12 -bottom-12 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
 
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative z-10">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 relative z-10">
         {/* Left: Inspiring Daily Quote */}
-        <div className="flex-1 min-w-0 pr-0 lg:pr-6 border-b lg:border-b-0 lg:border-r border-white/10 pb-3 lg:pb-0">
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="p-1 bg-amber-400/20 text-amber-300 rounded">
-              <Sparkles className="w-3.5 h-3.5" />
+        <div className="flex-1 min-w-0 pr-0 lg:pr-8 border-b lg:border-b-0 lg:border-r border-white/10 pb-4 lg:pb-0">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="p-1.5 bg-amber-400/20 text-amber-300 rounded-lg shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 animate-pulse" />
             </span>
-            <span className="text-[10px] uppercase font-bold tracking-widest text-amber-300">
-              Daily Inspiration & Mindset
+            <span className="text-[11px] uppercase font-bold tracking-widest text-amber-300/90 font-mono">
+              Daily Anchor · Mindset Mastery
             </span>
             <button
               type="button"
               onClick={handleNextQuote}
-              className="text-white/60 hover:text-white p-1 rounded hover:bg-white/10 transition-colors ml-auto lg:ml-2 cursor-pointer"
+              className="text-white/60 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors ml-auto lg:ml-2 cursor-pointer"
               title="Next Quote"
             >
-              <RefreshCw className="w-3 h-3" />
+              <RefreshCw className="w-3.5 h-3.5" />
             </button>
           </div>
-          <p className="text-xs sm:text-sm font-medium italic text-zinc-100 leading-relaxed">
+          <p className="text-sm sm:text-base font-medium italic text-slate-100 leading-relaxed tracking-wide">
             "{currentQuote.text}"
           </p>
-          <span className="text-[10px] text-zinc-400 font-semibold block mt-1">
+          <span className="text-xs text-indigo-200/80 font-semibold block mt-1.5 font-sans">
             — {currentQuote.author}
           </span>
         </div>
@@ -85,18 +86,18 @@ export const MotivationalBanner: React.FC<MotivationalBannerProps> = ({
         {/* Right: Gamification Badges & Actions */}
         <div className="flex flex-wrap items-center gap-3 shrink-0">
           {/* Level & XP Badge */}
-          <div className="bg-white/10 border border-white/15 rounded-lg px-3 py-2 flex items-center gap-2.5">
-            <div className="p-1.5 bg-amber-400 text-[#111111] rounded-md font-extrabold text-xs">
-              <Trophy className="w-3.5 h-3.5" />
+          <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-xl px-3.5 py-2.5 flex items-center gap-3 shadow-inner">
+            <div className="p-2 bg-gradient-to-tr from-amber-400 to-amber-500 text-slate-950 rounded-lg font-black text-xs shadow-md">
+              <Trophy className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-white">Level {level}</span>
-                <span className="text-[10px] text-amber-300 font-mono">({xp} XP)</span>
+                <span className="text-xs font-black tracking-wide text-white">Level {level}</span>
+                <span className="text-[10px] text-amber-300 font-mono font-bold">({xp} XP)</span>
               </div>
-              <div className="w-20 bg-white/20 h-1.5 rounded-full overflow-hidden mt-1">
+              <div className="w-24 bg-white/20 h-2 rounded-full overflow-hidden mt-1.5">
                 <div
-                  className="bg-amber-400 h-full rounded-full transition-all duration-500"
+                  className="bg-gradient-to-r from-amber-400 to-amber-300 h-full rounded-full transition-all duration-500"
                   style={{ width: `${xpInCurrentLevel}%` }}
                 />
               </div>
@@ -104,15 +105,15 @@ export const MotivationalBanner: React.FC<MotivationalBannerProps> = ({
           </div>
 
           {/* Active Tasks Completed */}
-          <div className="bg-white/10 border border-white/15 rounded-lg px-3 py-2 flex items-center gap-2">
-            <div className="p-1.5 bg-emerald-500/20 text-emerald-300 rounded-md">
-              <Flame className="w-3.5 h-3.5" />
+          <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 shadow-inner">
+            <div className="p-2 bg-emerald-500/20 text-emerald-300 rounded-lg">
+              <Flame className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-[10px] text-zinc-400 uppercase font-bold block">
-                Done Tasks
+              <span className="text-[10px] text-slate-300 uppercase font-bold block font-mono">
+                Tasks Completed
               </span>
-              <span className="text-xs font-bold font-mono text-white">
+              <span className="text-sm font-black font-mono text-white tracking-tight">
                 {completedTasksCount} / {totalTasksCount}
               </span>
             </div>
@@ -122,10 +123,10 @@ export const MotivationalBanner: React.FC<MotivationalBannerProps> = ({
           <button
             type="button"
             onClick={handleToggleSound}
-            className={`p-2 rounded-lg border transition-colors cursor-pointer ${
+            className={`p-2.5 rounded-xl border transition-all cursor-pointer shadow-sm ${
               soundOn
                 ? 'bg-white/10 border-white/20 text-white hover:bg-white/20'
-                : 'bg-red-500/20 border-red-500/30 text-red-300 hover:bg-red-500/30'
+                : 'bg-rose-500/20 border-rose-500/30 text-rose-300 hover:bg-rose-500/30'
             }`}
             title={soundOn ? 'Mute sound effects' : 'Unmute sound effects'}
           >
@@ -136,10 +137,10 @@ export const MotivationalBanner: React.FC<MotivationalBannerProps> = ({
           <button
             type="button"
             onClick={handleCelebrate}
-            className="inline-flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-amber-400 to-amber-500 text-[#111111] hover:from-amber-300 hover:to-amber-400 font-bold rounded-lg text-xs transition-all shadow-md active:scale-95 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-400 text-slate-950 font-black rounded-xl text-xs transition-all shadow-lg hover:shadow-amber-500/25 active:scale-95 cursor-pointer hover:brightness-105"
             title="Celebrate your progress!"
           >
-            <PartyPopper className="w-3.5 h-3.5" />
+            <PartyPopper className="w-4 h-4" />
             <span>Cheer 🎉</span>
           </button>
         </div>

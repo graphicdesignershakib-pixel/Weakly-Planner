@@ -66,20 +66,20 @@ export const DailyVerseCard: React.FC = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] rounded-xl p-4 sm:p-5 shadow-xs transition-colors relative overflow-hidden group">
+    <div className="bg-white/80 dark:bg-[#111827]/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-md transition-all relative overflow-hidden group luxury-card">
       {/* Decorative background glow */}
-      <div className="absolute top-0 right-0 w-36 h-36 bg-purple-500/5 dark:bg-purple-500/10 rounded-full blur-2xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-48 h-48 bg-purple-500/10 dark:bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="flex items-center justify-between gap-3 pb-3 border-b border-[#F4F4F5] dark:border-[#27272A] mb-3">
-        <div className="flex items-center gap-2">
-          <span className="p-1.5 bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40 rounded-lg">
-            <Sparkles className="w-3.5 h-3.5" />
+      <div className="flex items-center justify-between gap-3 pb-3.5 border-b border-slate-100 dark:border-slate-800/60 mb-4">
+        <div className="flex items-center gap-3">
+          <span className="p-2.5 bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 text-white rounded-xl shadow-md shadow-purple-500/20">
+            <Sparkles className="w-4 h-4" />
           </span>
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#111111] dark:text-white">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
               Spiritual Wisdom · Verse of the Day
             </h3>
-            <span className="text-[10px] text-[#71717A] dark:text-[#A1A1AA] font-mono">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">
               Daily Anchor for Peace & Purpose
             </span>
           </div>

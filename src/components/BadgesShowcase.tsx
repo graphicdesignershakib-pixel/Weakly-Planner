@@ -81,25 +81,25 @@ export const BadgesShowcase: React.FC<BadgesShowcaseProps> = ({ plannerState }) 
   const unlockedCount = badges.filter((b) => b.isUnlocked).length;
 
   return (
-    <div className="bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] rounded-xl p-4 sm:p-5 shadow-xs transition-colors">
-      <div className="flex items-center justify-between pb-3 border-b border-[#F4F4F5] dark:border-[#27272A] mb-3">
-        <div className="flex items-center gap-2">
-          <span className="p-1.5 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800/40 rounded-lg">
+    <div className="bg-white/80 dark:bg-[#111827]/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all luxury-card">
+      <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 dark:border-slate-800/60 mb-4">
+        <div className="flex items-center gap-3">
+          <span className="p-2.5 bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 rounded-xl shadow-md shadow-amber-500/20 font-black">
             <Trophy className="w-4 h-4" />
           </span>
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#111111] dark:text-white">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
               Trophy Room · Achievement Badges
             </h3>
-            <span className="text-[10px] text-[#71717A] dark:text-[#A1A1AA] font-mono">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">
               Earn honor badges as you stay disciplined each day
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 bg-[#FAFAFA] dark:bg-[#202024] px-2.5 py-1 rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
+        <div className="flex items-center gap-1.5 bg-slate-100/80 dark:bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-700/60 shadow-inner">
           <Star className="w-3.5 h-3.5 text-amber-500 fill-current" />
-          <span className="text-xs font-bold text-[#111111] dark:text-white font-mono">
+          <span className="text-xs font-bold text-slate-900 dark:text-white font-mono">
             {unlockedCount} / {badges.length} Unlocked
           </span>
         </div>

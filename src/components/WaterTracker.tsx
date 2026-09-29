@@ -54,33 +54,33 @@ export const WaterTracker: React.FC<WaterTrackerProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] rounded-xl p-4 sm:p-5 shadow-xs transition-colors">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#F4F4F5] dark:border-[#27272A]">
-        <div className="flex items-center gap-2.5">
-          <span className="p-2 bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800/50 rounded-lg">
+    <div className="bg-white/80 dark:bg-[#111827]/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all luxury-card">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800/60">
+        <div className="flex items-center gap-3">
+          <span className="p-2.5 bg-gradient-to-tr from-sky-500 to-cyan-400 text-white rounded-xl shadow-md shadow-sky-500/20">
             <Droplets className="w-4 h-4" />
           </span>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#111111] dark:text-white">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
                 Daily Hydration Tracker ({dayLabel})
               </h3>
               {glasses >= maxGlasses && (
-                <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-sky-800 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/40 px-1.5 py-0.2 rounded border border-sky-200 dark:border-sky-800/50">
-                  <Sparkles className="w-2.5 h-2.5" /> Goal Reached!
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 px-2 py-0.5 rounded-full border border-sky-200 dark:border-sky-800/50 shadow-2xs font-mono">
+                  <Sparkles className="w-3 h-3 text-sky-500" /> Goal Reached!
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-[#71717A] dark:text-[#A1A1AA]">
-              8 Glasses Target (2,000 ml) · Click glass to record drink
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              8 Glasses Target (2,000 ml) · Tap a glass to fill
             </p>
           </div>
         </div>
 
         {/* Counter and controls */}
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          <div className="flex items-center gap-1.5 bg-[#F8F9FA] dark:bg-[#202024] px-3 py-1 rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
-            <span className="text-sm font-extrabold font-mono text-[#111111] dark:text-white tabular-nums">
+          <div className="flex items-center gap-1.5 bg-slate-100/80 dark:bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-700/60 shadow-inner">
+            <span className="text-sm font-black font-mono text-slate-900 dark:text-white tabular-nums tracking-tight">
               {totalMl} ml
             </span>
             <span className="text-xs text-[#71717A] dark:text-[#A1A1AA] font-mono">

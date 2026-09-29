@@ -1,5 +1,5 @@
 import { PlannerState, Habit, MasterTodo, LongTermGoal, ShortTermGoal } from '../types/planner';
-import { generateBlankWeek, generateSampleData, DEFAULT_HABITS, DEFAULT_LONG_TERM_GOALS, DEFAULT_SHORT_TERM_GOALS, DEFAULT_MASTER_TODOS } from '../data/initialData';
+import { generateBlankWeek, DEFAULT_HABITS, DEFAULT_LONG_TERM_GOALS, DEFAULT_SHORT_TERM_GOALS, DEFAULT_MASTER_TODOS } from '../data/initialData';
 import { getWeekDaysInfo } from '../utils/dateUtils';
 
 const STORAGE_PREFIX = 'weekly_life_planner_v1_';
@@ -8,7 +8,7 @@ const MASTER_HABITS_KEY = 'weekly_life_planner_master_habits';
 const MASTER_TODOS_KEY = 'weekly_life_planner_master_todos';
 const MASTER_LONG_GOALS_KEY = 'weekly_life_planner_master_long_goals';
 const MASTER_SHORT_GOALS_KEY = 'weekly_life_planner_master_short_goals';
-const HAS_INITIALIZED_KEY = 'weekly_life_planner_has_initialized_v2';
+const CLEAN_SLATE_KEY = 'weekly_planner_clean_slate_user_v3';
 
 export interface StorageRepository {
   load(weekStart: string): PlannerState;
@@ -22,6 +22,36 @@ export interface StorageRepository {
 }
 
 class LocalStorageRepository implements StorageRepository {
+  constructor() {
+    this.ensureCleanSlate();
+  }
+
+  // Wipes any previously seeded sample data from localStorage so user has a 100% clean slate
+  private ensureCleanSlate(): void {
+    try {
+      if (typeof window === 'undefined') return;
+      const isClean = localStorage.getItem(CLEAN_SLATE_KEY);
+      if (!isClean) {
+        // Clear all previous sample data keys
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && (k.startsWith(STORAGE_PREFIX) || k.startsWith('monthly_aesthetic_habits_v2_'))) {
+            keysToRemove.push(k);
+          }
+        }
+        keysToRemove.forEach((k) => localStorage.removeItem(k));
+        localStorage.removeItem(MASTER_HABITS_KEY);
+        localStorage.removeItem(MASTER_TODOS_KEY);
+        localStorage.removeItem(MASTER_LONG_GOALS_KEY);
+        localStorage.removeItem(MASTER_SHORT_GOALS_KEY);
+        localStorage.setItem(CLEAN_SLATE_KEY, 'true');
+      }
+    } catch {
+      // ignore
+    }
+  }
+
   private getKey(weekStart: string): string {
     return `${STORAGE_PREFIX}${weekStart}`;
   }
@@ -110,17 +140,7 @@ class LocalStorageRepository implements StorageRepository {
       console.error('Failed to load planner state from localStorage:', e);
     }
 
-    // Check if this is the first time the app is EVER run
-    const hasInitialized = localStorage.getItem(HAS_INITIALIZED_KEY);
-    if (!hasInitialized) {
-      localStorage.setItem(HAS_INITIALIZED_KEY, 'true');
-      const sampleState = generateSampleData(weekStart);
-      this.save(sampleState);
-      return sampleState;
-    }
-
-    // For any NEW or unvisited week, start completely blank and fresh!
-    // But preserve master habit templates and long/short term goals
+    // Always start with a 100% clean, blank week!
     const blankState = generateBlankWeek(
       weekStart,
       this.getMasterHabits(),
@@ -139,7 +159,7 @@ class LocalStorageRepository implements StorageRepository {
       this.setLastActiveWeek(state.weekStart);
 
       // Persist global items
-      if (state.habits && state.habits.length > 0) {
+      if (state.habits) {
         this.setMasterHabits(state.habits);
       }
       if (state.masterTodos) {
@@ -156,22 +176,20 @@ class LocalStorageRepository implements StorageRepository {
     }
   }
 
-  reset(weekStart: string, useSample: boolean = true): PlannerState {
-    const freshState = useSample
-      ? generateSampleData(weekStart)
-      : generateBlankWeek(
-          weekStart,
-          this.getMasterHabits(),
-          this.getMasterTodos(),
-          this.getMasterLongGoals(),
-          this.getMasterShortGoals()
-        );
+  reset(weekStart: string, _useSample?: boolean): PlannerState {
+    const freshState = generateBlankWeek(
+      weekStart,
+      [],
+      [],
+      [],
+      []
+    );
     this.save(freshState);
     return freshState;
   }
 
   clear(weekStart: string): PlannerState {
-    return this.reset(weekStart, false);
+    return this.reset(weekStart);
   }
 
   getLastActiveWeek(): string | null {
@@ -246,6 +264,10 @@ class LocalStorageRepository implements StorageRepository {
             title: t.title || '',
             completed: Boolean(t.completed),
             priority: t.priority === 'high' ? ('high' as const) : ('normal' as const),
+            time: t.time,
+            endTime: t.endTime,
+            reminder: t.reminder,
+            reminderTiming: t.reminderTiming,
           })),
         };
       }
@@ -256,7 +278,7 @@ class LocalStorageRepository implements StorageRepository {
       };
     });
 
-    const habits = Array.isArray(data.habits) && data.habits.length > 0
+    const habits = Array.isArray(data.habits)
       ? data.habits.map((h, i) => ({
           id: h.id || `h-${i}`,
           name: h.name || `Habit ${i + 1}`,
@@ -265,7 +287,7 @@ class LocalStorageRepository implements StorageRepository {
             ? h.completed.map(Boolean)
             : [false, false, false, false, false, false, false],
         }))
-      : this.getMasterHabits();
+      : [];
 
     return {
       weekStart: data.weekStart || weekStart,
@@ -281,9 +303,9 @@ class LocalStorageRepository implements StorageRepository {
         lesson: data.review?.lesson || '',
         nextWeekPriority: data.review?.nextWeekPriority || '',
       },
-      masterTodos: Array.isArray(data.masterTodos) ? data.masterTodos : this.getMasterTodos(),
-      longTermGoals: Array.isArray(data.longTermGoals) ? data.longTermGoals : this.getMasterLongGoals(),
-      shortTermGoals: Array.isArray(data.shortTermGoals) ? data.shortTermGoals : this.getMasterShortGoals(),
+      masterTodos: Array.isArray(data.masterTodos) ? data.masterTodos : [],
+      longTermGoals: Array.isArray(data.longTermGoals) ? data.longTermGoals : [],
+      shortTermGoals: Array.isArray(data.shortTermGoals) ? data.shortTermGoals : [],
     };
   }
 }

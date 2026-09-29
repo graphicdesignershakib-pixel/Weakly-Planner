@@ -62,23 +62,23 @@ export const GoalsSection: React.FC<GoalsSectionProps> = ({
   const completedShortGoals = shortTermGoals.filter((g) => g.status === 'completed').length;
 
   return (
-    <section aria-labelledby="goals-section-heading" className="bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] rounded-xl p-4 sm:p-6 shadow-xs transition-colors">
+    <section aria-labelledby="goals-section-heading" className="bg-white/80 dark:bg-[#111827]/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-md transition-all luxury-card">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#F4F4F5] dark:border-[#27272A]">
-        <div className="flex items-center gap-2.5">
-          <span className="p-2 bg-[#111111] dark:bg-white text-white dark:text-[#111111] rounded-lg shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/60">
+        <div className="flex items-center gap-3">
+          <span className="p-2.5 bg-gradient-to-tr from-sky-600 to-indigo-600 text-white rounded-xl shadow-md shadow-sky-600/20">
             <Compass className="w-4 h-4" />
           </span>
           <div>
             <div className="flex items-center gap-2">
-              <h2 id="goals-section-heading" className="text-base font-bold text-[#111111] dark:text-white tracking-tight">
+              <h2 id="goals-section-heading" className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                 Life Goals & Vision Hub
               </h2>
-              <span className="text-[10px] font-bold uppercase tracking-wider bg-[#FAFAFA] dark:bg-[#202024] border border-[#E5E7EB] dark:border-[#27272A] text-[#52525B] dark:text-[#A1A1AA] px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-bold font-mono uppercase tracking-wider bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-full">
                 Strategic Alignment
               </span>
             </div>
-            <p className="text-xs text-[#71717A] dark:text-[#A1A1AA] mt-0.5">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
               Connect daily actions with your quarterly vision & long-term milestones
             </p>
           </div>
@@ -154,8 +154,16 @@ export const GoalsSection: React.FC<GoalsSectionProps> = ({
           </form>
 
           {/* Long Term Goals Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {longTermGoals.map((goal) => (
+          {longTermGoals.length === 0 ? (
+            <div className="py-8 text-center bg-slate-50/60 dark:bg-slate-900/40 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+              <span className="text-2xl mb-1 block">🎯</span>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                কোনো দীর্ঘমেয়াদী লক্ষ্য এখনও যোগ করা হয়নি। উপরের ফর্ম ব্যবহার করে নিজের লক্ষ্য যোগ করুন।
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {longTermGoals.map((goal) => (
               <div
                 key={goal.id}
                 className="border border-[#E5E7EB] dark:border-[#27272A] rounded-lg p-3.5 bg-[#FAFAFA] dark:bg-[#121214] flex flex-col justify-between hover:border-[#D4D4D8] dark:hover:border-[#3F3F46] transition-colors"
@@ -257,7 +265,8 @@ export const GoalsSection: React.FC<GoalsSectionProps> = ({
                 </div>
               </div>
             ))}
-          </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="pt-4 space-y-4">
@@ -288,71 +297,80 @@ export const GoalsSection: React.FC<GoalsSectionProps> = ({
           </form>
 
           {/* Short Term Goals List */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {shortTermGoals.map((goal) => {
-              const isDone = goal.status === 'completed';
+          {shortTermGoals.length === 0 ? (
+            <div className="py-8 text-center bg-slate-50/60 dark:bg-slate-900/40 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+              <span className="text-2xl mb-1 block">⚡</span>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                কোনো স্বল্পমেয়াদী লক্ষ্য এখনও যোগ করা হয়নি। উপরের ফর্ম ব্যবহার করে স্প্রিন্ট লক্ষ্য যোগ করুন।
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {shortTermGoals.map((goal) => {
+                const isDone = goal.status === 'completed';
 
-              return (
-                <div
-                  key={goal.id}
-                  className={`p-3 rounded-lg border flex items-start justify-between gap-3 transition-colors ${
-                    isDone
-                      ? 'bg-[#F4F4F5] dark:bg-[#151518] border-[#E5E7EB] dark:border-[#27272A]'
-                      : 'bg-white dark:bg-[#18181B] border-[#E5E7EB] dark:border-[#27272A] hover:border-[#111111] dark:hover:border-white'
-                  }`}
-                >
-                  <div className="flex items-start gap-2.5">
-                    <button
-                      type="button"
-                      role="checkbox"
-                      aria-checked={isDone}
-                      onClick={() => onToggleShortGoalStatus(goal.id)}
-                      className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all cursor-pointer ${
-                        isDone
-                          ? 'bg-emerald-600 border-emerald-600 text-white'
-                          : 'bg-white dark:bg-[#18181B] border-[#D4D4D8] dark:border-[#3F3F46] hover:border-[#111111] dark:hover:border-white'
-                      }`}
-                    >
-                      {isDone && <Check className="w-3 h-3 stroke-[3]" />}
-                    </button>
-                    <div>
-                      <span
+                return (
+                  <div
+                    key={goal.id}
+                    className={`p-3 rounded-lg border flex items-start justify-between gap-3 transition-colors ${
+                      isDone
+                        ? 'bg-[#F4F4F5] dark:bg-[#151518] border-[#E5E7EB] dark:border-[#27272A]'
+                        : 'bg-white dark:bg-[#18181B] border-[#E5E7EB] dark:border-[#27272A] hover:border-[#111111] dark:hover:border-white'
+                    }`}
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <button
+                        type="button"
+                        role="checkbox"
+                        aria-checked={isDone}
                         onClick={() => onToggleShortGoalStatus(goal.id)}
-                        className={`text-xs font-semibold select-text cursor-pointer block ${
-                          isDone ? 'line-through text-[#888888] dark:text-[#71717A]' : 'text-[#111111] dark:text-zinc-100'
+                        className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all cursor-pointer ${
+                          isDone
+                            ? 'bg-emerald-600 border-emerald-600 text-white'
+                            : 'bg-white dark:bg-[#18181B] border-[#D4D4D8] dark:border-[#3F3F46] hover:border-[#111111] dark:hover:border-white'
                         }`}
                       >
-                        {goal.title}
-                      </span>
-                      <div className="flex items-center gap-1.5 mt-1">
-                        <span className="text-[10px] text-[#71717A] dark:text-[#A1A1AA] bg-[#FAFAFA] dark:bg-[#202024] border border-[#E5E7EB] dark:border-[#27272A] px-1.5 py-0.2 rounded font-mono">
-                          {goal.deadline}
-                        </span>
+                        {isDone && <Check className="w-3 h-3 stroke-[3]" />}
+                      </button>
+                      <div>
                         <span
-                          className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded ${
-                            isDone
-                              ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300'
-                              : 'bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300'
+                          onClick={() => onToggleShortGoalStatus(goal.id)}
+                          className={`text-xs font-semibold select-text cursor-pointer block ${
+                            isDone ? 'line-through text-[#888888] dark:text-[#71717A]' : 'text-[#111111] dark:text-zinc-100'
                           }`}
                         >
-                          {isDone ? 'Achieved' : 'In Progress'}
+                          {goal.title}
                         </span>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <span className="text-[10px] text-[#71717A] dark:text-[#A1A1AA] bg-[#FAFAFA] dark:bg-[#202024] border border-[#E5E7EB] dark:border-[#27272A] px-1.5 py-0.2 rounded font-mono">
+                            {goal.deadline}
+                          </span>
+                          <span
+                            className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded ${
+                              isDone
+                                ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300'
+                                : 'bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300'
+                            }`}
+                          >
+                            {isDone ? 'Achieved' : 'In Progress'}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <button
-                    type="button"
-                    onClick={() => onDeleteShortGoal(goal.id)}
-                    className="p-1 text-[#A1A1AA] hover:text-[#DC2626] dark:hover:text-red-400 rounded cursor-pointer shrink-0"
-                    title="Delete goal"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+                    <button
+                      type="button"
+                      onClick={() => onDeleteShortGoal(goal.id)}
+                      className="p-1 text-[#A1A1AA] hover:text-[#DC2626] dark:hover:text-red-400 rounded cursor-pointer shrink-0"
+                      title="Delete goal"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
     </section>

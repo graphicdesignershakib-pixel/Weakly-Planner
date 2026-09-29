@@ -110,3 +110,36 @@ export function playLevelUpSound(): void {
     // ignore
   }
 }
+
+/**
+ * Gentle and clear reminder alert chime
+ */
+export function playReminderAlarmSound(): void {
+  if (!isSoundEnabled()) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const chimeFrequencies = [659.25, 880.0, 1318.51]; // E5, A5, E6
+
+    chimeFrequencies.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+
+      gain.gain.setValueAtTime(0.12, now + idx * 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.5);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now + idx * 0.12);
+      osc.stop(now + idx * 0.12 + 0.5);
+    });
+  } catch {
+    // ignore
+  }
+}

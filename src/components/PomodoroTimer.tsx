@@ -100,35 +100,35 @@ export const PomodoroTimer: React.FC = () => {
   const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
   return (
-    <div className="bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] rounded-xl shadow-xs overflow-hidden transition-colors">
+    <div className="bg-white/80 dark:bg-[#111827]/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden luxury-card">
       {/* Timer Bar / Header */}
       <div
         onClick={() => setIsOpen(!isOpen)}
-        className="px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-[#FAFAFA] dark:hover:bg-[#202024] transition-colors"
+        className="px-5 py-3.5 flex items-center justify-between cursor-pointer hover:bg-slate-50/80 dark:hover:bg-slate-850/50 transition-colors"
       >
-        <div className="flex items-center gap-2.5">
-          <span className="p-1.5 bg-[#111111] dark:bg-white text-white dark:text-[#111111] rounded-lg">
+        <div className="flex items-center gap-3">
+          <span className="p-2 bg-gradient-to-tr from-slate-900 to-slate-700 dark:from-white dark:to-slate-200 text-white dark:text-slate-900 rounded-xl shadow-xs">
             <Timer className="w-4 h-4" />
           </span>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#111111] dark:text-white">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
                 Pomodoro Focus & Ambient Audio
               </h3>
               {completedSessions > 0 && (
-                <span className="text-[10px] font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50 px-1.5 py-0.2 rounded-full">
+                <span className="text-[10px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50 px-2 py-0.5 rounded-full font-mono">
                   {completedSessions} {completedSessions === 1 ? 'Sprint' : 'Sprints'} Done
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-[#71717A] dark:text-[#A1A1AA]">
-              {isRunning ? 'Currently in flow state' : '25m Deep Work · 5m Rest'}
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              {isRunning ? '✨ In Flow State (Alpha Waves)' : '25m Deep Work · 5m Rest'}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="font-mono text-sm font-bold text-[#111111] dark:text-white tracking-tight">
+          <span className="font-mono text-base font-black text-slate-900 dark:text-white tracking-tight tabular-nums">
             {formattedTime}
           </span>
           <button
@@ -137,7 +137,7 @@ export const PomodoroTimer: React.FC = () => {
               e.stopPropagation();
               handleTogglePlay();
             }}
-            className="p-1.5 bg-[#111111] dark:bg-white text-white dark:text-[#111111] rounded-md hover:opacity-90 transition-opacity cursor-pointer"
+            className="p-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl hover:opacity-90 active:scale-95 transition-all cursor-pointer shadow-xs"
             title={isRunning ? 'Pause' : 'Start'}
           >
             {isRunning ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}

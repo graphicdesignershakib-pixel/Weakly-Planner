@@ -21,9 +21,9 @@ export const WeekNavigation: React.FC<WeekNavigationProps> = ({
   return (
     <nav
       aria-label="Week day navigation"
-      className="bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] rounded-xl p-2 overflow-x-auto custom-scrollbar shadow-xs transition-colors"
+      className="bg-white/80 dark:bg-[#111827]/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-2.5 overflow-x-auto custom-scrollbar shadow-sm transition-all luxury-card"
     >
-      <div className="grid grid-cols-7 min-w-[500px] sm:min-w-0 gap-1.5 sm:gap-2">
+      <div className="grid grid-cols-7 min-w-[500px] sm:min-w-0 gap-2">
         {daysInfo.map((info) => {
           const dayPlan = days[info.dayIndex] || days.find((d) => d.date === info.dateStr);
           const progress = calculateDailyProgress(dayPlan);
@@ -35,10 +35,10 @@ export const WeekNavigation: React.FC<WeekNavigationProps> = ({
             <button
               key={info.dayIndex}
               onClick={() => onSelectDay(info.dayIndex)}
-              className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all text-center relative focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111111] dark:focus-visible:ring-white cursor-pointer ${
+              className={`flex flex-col items-center justify-center p-2.5 rounded-xl transition-all duration-200 text-center relative focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 cursor-pointer ${
                 isActive
-                  ? 'bg-[#111111] text-white dark:bg-white dark:text-[#111111] shadow-xs'
-                  : 'bg-[#F8F9FA] dark:bg-[#121214] text-[#111111] dark:text-zinc-200 hover:bg-[#F1F3F5] dark:hover:bg-[#202024] border border-transparent'
+                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md ring-1 ring-slate-900/10 scale-[1.02]'
+                  : 'bg-slate-50/80 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60'
               }`}
             >
               {/* Day abbreviation */}

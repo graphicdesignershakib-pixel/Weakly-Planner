@@ -53,17 +53,17 @@ export const WeeklyFocusReward: React.FC<WeeklyFocusRewardProps> = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
       {/* Weekly Focus & Objective (8 cols on desktop) */}
-      <div className="md:col-span-8 bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] rounded-xl p-4 sm:p-5 flex flex-col justify-between transition-colors shadow-xs">
+      <div className="md:col-span-8 bg-white/80 dark:bg-[#111827]/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 sm:p-6 flex flex-col justify-between transition-all shadow-sm hover:shadow-md luxury-card">
         <div className="flex items-start justify-between gap-4 mb-2">
-          <div className="flex items-center gap-2">
-            <span className="p-1.5 bg-[#F4F4F5] dark:bg-[#27272A] rounded text-[#111111] dark:text-white">
+          <div className="flex items-center gap-3">
+            <span className="p-2.5 bg-gradient-to-tr from-indigo-500 to-violet-500 text-white rounded-xl shadow-md shadow-indigo-500/20">
               <Target className="w-4 h-4" />
             </span>
             <div>
-              <span className="text-[11px] font-bold text-[#71717A] dark:text-[#A1A1AA] uppercase tracking-wider">
-                Weekly Focus
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+                Weekly Anchor Focus
               </span>
-              <p className="text-xs text-[#A1A1AA] dark:text-[#71717A] tabular-nums">
+              <p className="text-xs text-slate-400 dark:text-slate-500 tabular-nums">
                 Week Starting: {formattedWeekStart}
               </p>
             </div>
@@ -156,17 +156,17 @@ export const WeeklyFocusReward: React.FC<WeeklyFocusRewardProps> = ({
       </div>
 
       {/* Weekly Reward (4 cols on desktop) */}
-      <div className="md:col-span-4 bg-white dark:bg-[#18181B] border border-[#E5E7EB] dark:border-[#27272A] rounded-xl p-4 sm:p-5 flex flex-col justify-between transition-colors shadow-xs">
+      <div className="md:col-span-4 bg-white/80 dark:bg-[#111827]/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 sm:p-6 flex flex-col justify-between transition-all shadow-sm hover:shadow-md luxury-card">
         <div className="flex items-start justify-between gap-4 mb-2">
-          <div className="flex items-center gap-2">
-            <span className="p-1.5 bg-[#F4F4F5] dark:bg-[#27272A] rounded text-[#111111] dark:text-white">
+          <div className="flex items-center gap-3">
+            <span className="p-2.5 bg-gradient-to-tr from-amber-500 to-rose-500 text-white rounded-xl shadow-md shadow-amber-500/20">
               <Gift className="w-4 h-4" />
             </span>
             <div>
-              <span className="text-[11px] font-bold text-[#71717A] dark:text-[#A1A1AA] uppercase tracking-wider">
-                Reward on Completion
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+                Completion Reward
               </span>
-              <p className="text-xs text-[#A1A1AA] dark:text-[#71717A]">Celebrate your progress</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500">Celebrate your victory</p>
             </div>
           </div>
 
