@@ -23,9 +23,14 @@ import {
   Flame,
   BookOpen,
   MoreVertical,
+  Headphones,
+  Languages,
+  Award,
 } from 'lucide-react';
 import { formatWeekRangeLabel, getMondayOfWeek } from '../utils/dateUtils';
 import { ThemeType } from '../types/planner';
+import { PWAInstallButton } from './PWAInstallButton';
+import { useLanguage } from '../context/LanguageContext';
 
 interface HeaderProps {
   weekStart: string;
@@ -47,6 +52,11 @@ interface HeaderProps {
   onOpenManual?: () => void;
   onOpenCommandPalette?: () => void;
   onOpenProfile?: () => void;
+  onOpenAmbientTimer?: () => void;
+  onOpenWeeklyShare?: () => void;
+  onOpenRoutines?: () => void;
+  onOpenSearch?: () => void;
+  onOpenBadges?: () => void;
   userName?: string;
   userTagline?: string;
   lastSavedText: string;
@@ -76,6 +86,11 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenManual,
   onOpenCommandPalette,
   onOpenProfile,
+  onOpenAmbientTimer,
+  onOpenWeeklyShare,
+  onOpenRoutines,
+  onOpenSearch,
+  onOpenBadges,
   userName = 'Shakib',
   userTagline,
   lastSavedText,
@@ -84,6 +99,7 @@ export const Header: React.FC<HeaderProps> = ({
   currentTheme = 'minimal',
   onChangeTheme,
 }) => {
+  const { isBn, toggleLang } = useLanguage();
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [currentTime, setCurrentTime] = useState<Date>(() => new Date());
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
@@ -243,6 +259,85 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="hidden xl:inline">Rituals</span>
             </button>
           )}
+
+          {/* Ambient Focus Audio Timer */}
+          {onOpenAmbientTimer && (
+            <button
+              type="button"
+              onClick={onOpenAmbientTimer}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50/80 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 transition-colors cursor-pointer text-xs font-bold shadow-2xs"
+              title="অ্যাম্বিয়েন্ট সাউন্ড ও ফোকাস টাইমার"
+            >
+              <Headphones className="w-3.5 h-3.5" />
+              <span className="hidden xl:inline">ফোকাস অডিও</span>
+            </button>
+          )}
+
+          {/* Global Search Button */}
+          {onOpenSearch && (
+            <button
+              type="button"
+              onClick={onOpenSearch}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer text-xs font-bold shadow-2xs"
+              title={isBn ? 'সবকিছু সার্চ করুন (Search)' : 'Search everything'}
+            >
+              <Search className="w-3.5 h-3.5 text-indigo-500" />
+              <span className="hidden md:inline">{isBn ? 'সার্চ' : 'Search'}</span>
+            </button>
+          )}
+
+          {/* 1-Click Routine Presets */}
+          {onOpenRoutines && (
+            <button
+              type="button"
+              onClick={onOpenRoutines}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-purple-200 dark:border-purple-800 bg-purple-50/80 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 hover:bg-purple-100 transition-colors cursor-pointer text-xs font-bold shadow-2xs"
+              title={isBn ? '১-ক্লিকে রেডিমেড রুটিন লোড করুন' : '1-Click Routine Presets'}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+              <span className="hidden xl:inline">{isBn ? 'রুটিন টেমপ্লেট' : 'Routines'}</span>
+            </button>
+          )}
+
+          {/* Language Switcher Button (BN / EN) */}
+          <button
+            type="button"
+            onClick={toggleLang}
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-850 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-slate-200 text-xs font-mono font-bold transition-colors cursor-pointer shadow-2xs"
+            title={isBn ? 'Switch to English' : 'বাংলা ভাষায় পরিবর্তন করুন'}
+          >
+            <Languages className="w-3.5 h-3.5 text-sky-500" />
+            <span>{isBn ? 'বাংলা' : 'EN'}</span>
+          </button>
+
+          {/* Weekly Share Summary Card */}
+          {onOpenWeeklyShare && (
+            <button
+              type="button"
+              onClick={onOpenWeeklyShare}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50/80 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 transition-colors cursor-pointer text-xs font-bold shadow-2xs"
+              title="সাপ্তাহিক অর্জন কার্ড ও স্টোরি রিপোর্ট"
+            >
+              <Trophy className="w-3.5 h-3.5" />
+              <span className="hidden xl:inline">অর্জন কার্ড</span>
+            </button>
+          )}
+
+          {/* Gamification Badges & Level */}
+          {onOpenBadges && (
+            <button
+              type="button"
+              onClick={onOpenBadges}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-yellow-300 dark:border-yellow-700/60 bg-yellow-50/80 dark:bg-yellow-950/40 text-yellow-800 dark:text-yellow-300 hover:bg-yellow-100 transition-colors cursor-pointer text-xs font-bold shadow-2xs"
+              title={isBn ? 'আপনার প্রোডাক্টিভিটি ব্যাজ ও লেভেল দেখুন' : 'View your badges & level'}
+            >
+              <Award className="w-3.5 h-3.5 text-amber-500" />
+              <span className="hidden xl:inline">{isBn ? 'ব্যাজ' : 'Badges'}</span>
+            </button>
+          )}
+
+          {/* PWA Install Button */}
+          <PWAInstallButton />
 
           {/* User Manual Guide */}
           {onOpenManual && (

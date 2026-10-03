@@ -23,6 +23,8 @@ import {
   Coffee,
   Calendar,
   CalendarPlus,
+  Mic,
+  Timer,
 } from 'lucide-react';
 import { DayPlan, Task, DayInfo, DayMood, DayPrayers } from '../types/planner';
 import { CompletionRing } from './CompletionRing';
@@ -31,6 +33,7 @@ import { playTaskCompleteSound } from '../utils/soundEffects';
 import { playWaterDropSound } from '../utils/waterSound';
 import { fireConfetti } from '../utils/confetti';
 import { createGoogleCalendarUrl, exportTasksToIcs } from '../utils/calendarSync';
+import { startVoiceListening, isSpeechRecognitionSupported } from '../utils/speechRecognition';
 
 interface DayCardProps {
   dayInfo: DayInfo;
@@ -189,6 +192,64 @@ export const DayCard: React.FC<DayCardProps> = ({
   const [isEditingWin, setIsEditingWin] = useState(false);
   const [tempWin, setTempWin] = useState(dayPlan?.winOfTheDay || '');
   const [showPrayers, setShowPrayers] = useState(false);
+
+  // Voice Input State
+  const [isVoiceListening, setIsVoiceListening] = useState(false);
+  const isVoiceSupported = isSpeechRecognitionSupported();
+
+  // Task Stopwatch Timer State
+  const [activeTimerTaskId, setActiveTimerTaskId] = useState<string | null>(null);
+  const [taskElapsedSeconds, setTaskElapsedSeconds] = useState<{ [id: string]: number }>(() => {
+    try {
+      const saved = localStorage.getItem(`task_time_${dayInfo.dateStr}`);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (activeTimerTaskId) {
+      interval = setInterval(() => {
+        setTaskElapsedSeconds((prev) => {
+          const updated = {
+            ...prev,
+            [activeTimerTaskId]: (prev[activeTimerTaskId] || 0) + 1,
+          };
+          try {
+            localStorage.setItem(`task_time_${dayInfo.dateStr}`, JSON.stringify(updated));
+          } catch {
+            // ignore
+          }
+          return updated;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [activeTimerTaskId, dayInfo.dateStr]);
+
+  const toggleTaskTimer = (taskId: string) => {
+    setActiveTimerTaskId((prev) => (prev === taskId ? null : taskId));
+  };
+
+  const handleVoiceInput = () => {
+    if (isVoiceListening) {
+      setIsVoiceListening(false);
+      return;
+    }
+    startVoiceListening(
+      (transcript) => {
+        setNewTaskTitle((prev) => (prev ? `${prev} ${transcript}` : transcript));
+      },
+      (listening) => {
+        setIsVoiceListening(listening);
+      },
+      'bn-BD'
+    );
+  };
 
   const inputRef = useRef<HTMLInputElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
@@ -732,12 +793,42 @@ export const DayCard: React.FC<DayCardProps> = ({
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
-                            className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 transition-opacity cursor-pointer inline-flex items-center gap-0.5 text-[9px] bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950 px-1 rounded"
+                            className="opacity-75 sm:opacity-0 sm:group-hover:opacity-100 p-0.5 text-slate-500 hover:text-sky-600 dark:hover:text-sky-400 transition-opacity cursor-pointer inline-flex items-center gap-0.5 text-[9px] bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950 px-1 rounded shadow-2xs"
                             title="গুগল ক্যালেন্ডারে যোগ করুন (অ্যাপ বন্ধ থাকলেও ফোনে অ্যালার্ম বাজবে ও মেইল আসবে)"
                           >
                             <CalendarPlus className="w-2.5 h-2.5 text-sky-500" />
                             <span>ক্যালেন্ডার</span>
                           </a>
+
+                          {/* Task Stopwatch Timer */}
+                          {(() => {
+                            const isTimerRunning = activeTimerTaskId === task.id;
+                            const elapsed = taskElapsedSeconds[task.id] || 0;
+                            const mins = Math.floor(elapsed / 60);
+                            const secs = elapsed % 60;
+                            const timeFormatted = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+
+                            return (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleTaskTimer(task.id);
+                                }}
+                                className={`p-0.5 rounded transition-all cursor-pointer inline-flex items-center gap-0.5 text-[9px] font-mono ${
+                                  isTimerRunning
+                                    ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-700 animate-pulse px-1'
+                                    : elapsed > 0
+                                    ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 px-1'
+                                    : 'opacity-0 group-hover:opacity-100 text-slate-400 hover:text-indigo-600 bg-slate-100 dark:bg-slate-800 px-1'
+                                }`}
+                                title={isTimerRunning ? 'স্টপওয়াচ চলছে (ক্লিক করে থামান)' : elapsed > 0 ? `মোট কাজ হয়েছে: ${timeFormatted}` : 'স্টপওয়াচ শুরু করুন'}
+                              >
+                                <Timer className={`w-2.5 h-2.5 ${isTimerRunning ? 'text-rose-600 animate-spin' : 'text-indigo-500'}`} />
+                                <span>{isTimerRunning || elapsed > 0 ? timeFormatted : 'টাইমার'}</span>
+                              </button>
+                            );
+                          })()}
 
                           <span
                             onClick={() => handleToggle(task)}
@@ -909,6 +1000,22 @@ export const DayCard: React.FC<DayCardProps> = ({
                 <Clock className="w-3.5 h-3.5" />
                 {newTaskTime && <span className="text-[10px] font-mono hidden sm:inline">{newTaskTime}</span>}
               </button>
+
+              {/* Voice Input Mic Button */}
+              {isVoiceSupported && (
+                <button
+                  type="button"
+                  onClick={handleVoiceInput}
+                  className={`p-2 rounded-xl border transition-all cursor-pointer shrink-0 flex items-center justify-center ${
+                    isVoiceListening
+                      ? 'bg-rose-500 text-white border-rose-500 animate-pulse shadow-md shadow-rose-500/30'
+                      : 'border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40'
+                  }`}
+                  title={isVoiceListening ? 'শুনছি... মুখে বলুন (Listening)' : 'মুখে বলে কাজ লিখুন (ভয়েস ইনপুট)'}
+                >
+                  <Mic className={`w-3.5 h-3.5 ${isVoiceListening ? 'animate-bounce' : ''}`} />
+                </button>
+              )}
 
               <button
                 type="submit"

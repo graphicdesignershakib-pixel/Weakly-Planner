@@ -34,6 +34,18 @@ import { FutureLettersModal } from './components/FutureLettersModal';
 import { WeeklyWrappedModal } from './components/WeeklyWrappedModal';
 import { UserManualModal } from './components/UserManualModal';
 import { NavigationTabs, PlannerViewMode } from './components/NavigationTabs';
+import { DailyQuoteBanner } from './components/DailyQuoteBanner';
+import { DailyRitualsCard } from './components/DailyRitualsCard';
+import { DailyExpenseTracker } from './components/DailyExpenseTracker';
+import { AmbientFocusTimer } from './components/AmbientFocusTimer';
+import { WeeklyShareCardModal } from './components/WeeklyShareCardModal';
+import { DailyWellnessTracker } from './components/DailyWellnessTracker';
+import { DailyWaterTracker } from './components/DailyWaterTracker';
+import { ConsistencyHeatmap } from './components/ConsistencyHeatmap';
+import { GamificationBadgesModal } from './components/GamificationBadgesModal';
+import { RoutineTemplatesModal } from './components/RoutineTemplatesModal';
+import { GlobalSearchModal } from './components/GlobalSearchModal';
+import { useLanguage } from './context/LanguageContext';
 import {
   PlannerState,
   WeeklyReview as WeeklyReviewType,
@@ -136,6 +148,11 @@ export default function App() {
   const [isWrappedModalOpen, setIsWrappedModalOpen] = useState<boolean>(false);
   const [isManualModalOpen, setIsManualModalOpen] = useState<boolean>(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
+  const [isAmbientTimerOpen, setIsAmbientTimerOpen] = useState<boolean>(false);
+  const [isWeeklyShareOpen, setIsWeeklyShareOpen] = useState<boolean>(false);
+  const [isRoutinesModalOpen, setIsRoutinesModalOpen] = useState<boolean>(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState<boolean>(false);
+  const [isBadgesModalOpen, setIsBadgesModalOpen] = useState<boolean>(false);
   const [backupModalMode, setBackupModalMode] = useState<'export' | 'import' | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [currentNavTab, setCurrentNavTab] = useState<PlannerViewMode>('monthly');
@@ -490,6 +507,34 @@ export default function App() {
           }),
         };
       });
+    },
+    [ensureDays]
+  );
+
+  const handleApplyRoutineTemplate = useCallback(
+    (
+      dayIndex: number,
+      tasks: Array<{ title: string; time?: string; priority?: 'high' | 'normal' }>
+    ) => {
+      setPlannerState((prev) => {
+        const days = ensureDays(prev.days);
+        const newTasks: Task[] = tasks.map((t) => ({
+          id: `task-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+          title: t.title,
+          time: t.time,
+          completed: false,
+          priority: t.priority || 'normal',
+        }));
+
+        return {
+          ...prev,
+          days: days.map((d, dIdx) =>
+            dIdx === dayIndex ? { ...d, tasks: [...d.tasks, ...newTasks] } : d
+          ),
+        };
+      });
+      setToastMessage('✨ রুটিন সফলভাবে লোড হয়েছে!');
+      setTimeout(() => setToastMessage(null), 3000);
     },
     [ensureDays]
   );
@@ -1400,6 +1445,11 @@ export default function App() {
         onOpenManual={() => setIsManualModalOpen(true)}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
         onOpenProfile={() => setIsProfileModalOpen(true)}
+        onOpenAmbientTimer={() => setIsAmbientTimerOpen(true)}
+        onOpenWeeklyShare={() => setIsWeeklyShareOpen(true)}
+        onOpenRoutines={() => setIsRoutinesModalOpen(true)}
+        onOpenSearch={() => setIsSearchModalOpen(true)}
+        onOpenBadges={() => setIsBadgesModalOpen(true)}
         userName={userProfile.name}
         userTagline={userProfile.tagline}
         lastSavedText={lastSavedText}
@@ -1422,7 +1472,10 @@ export default function App() {
       />
 
       {/* Main Clean Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        {/* Daily Motivation & Wisdom Banner */}
+        <DailyQuoteBanner />
+
         {/* 1. Monthly Aesthetic Habit Tracker (Clean Google Sheets view) */}
         {currentNavTab === 'monthly' && (
           <MonthlyAestheticHabitTracker />
@@ -1493,6 +1546,41 @@ export default function App() {
                 onEditTodo={handleEditTodo}
               />
             </div>
+
+            {/* Daily Rituals (Morning & Evening) and Mini Pocket Expense Tracker */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <DailyRitualsCard />
+              <DailyExpenseTracker />
+            </div>
+
+            {/* Daily Water Tracker */}
+            <DailyWaterTracker
+              dateStr={
+                daysInfo[
+                  activeDayIndex !== null
+                    ? activeDayIndex
+                    : daysInfo.findIndex((d) => d.isToday) !== -1
+                    ? daysInfo.findIndex((d) => d.isToday)
+                    : 0
+                ]?.dateStr
+              }
+            />
+
+            {/* Daily Meals & Sleep Recovery Tracker */}
+            <DailyWellnessTracker
+              dateStr={
+                daysInfo[
+                  activeDayIndex !== null
+                    ? activeDayIndex
+                    : daysInfo.findIndex((d) => d.isToday) !== -1
+                    ? daysInfo.findIndex((d) => d.isToday)
+                    : 0
+                ]?.dateStr
+              }
+            />
+
+            {/* Consistency & Productivity Heatmap */}
+            <ConsistencyHeatmap state={plannerState} />
           </div>
         )}
 
@@ -1650,6 +1738,51 @@ export default function App() {
       <UserManualModal
         isOpen={isManualModalOpen}
         onClose={() => setIsManualModalOpen(false)}
+      />
+
+      {/* Ambient Focus Audio Timer with Synthesized Soundscapes */}
+      <AmbientFocusTimer
+        isOpen={isAmbientTimerOpen}
+        onClose={() => setIsAmbientTimerOpen(false)}
+        tasks={
+          plannerState.days[
+            daysInfo.findIndex((d) => d.isToday) !== -1
+              ? daysInfo.findIndex((d) => d.isToday)
+              : 0
+          ]?.tasks || []
+        }
+      />
+
+      {/* Weekly Share Card Modal */}
+      <WeeklyShareCardModal
+        isOpen={isWeeklyShareOpen}
+        onClose={() => setIsWeeklyShareOpen(false)}
+        state={plannerState}
+      />
+
+      {/* 1-Click Routine Presets Modal */}
+      <RoutineTemplatesModal
+        isOpen={isRoutinesModalOpen}
+        onClose={() => setIsRoutinesModalOpen(false)}
+        daysInfo={daysInfo}
+        activeDayIndex={activeDayIndex}
+        onApplyTemplate={handleApplyRoutineTemplate}
+      />
+
+      {/* Global Search Modal across tasks, notes, habits */}
+      <GlobalSearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+        state={plannerState}
+        daysInfo={daysInfo}
+        onSelectDay={handleSelectDay}
+      />
+
+      {/* Gamification Badges & Level Modal */}
+      <GamificationBadgesModal
+        isOpen={isBadgesModalOpen}
+        onClose={() => setIsBadgesModalOpen(false)}
+        state={plannerState}
       />
     </div>
   );
