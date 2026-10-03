@@ -45,6 +45,11 @@ import { ConsistencyHeatmap } from './components/ConsistencyHeatmap';
 import { GamificationBadgesModal } from './components/GamificationBadgesModal';
 import { RoutineTemplatesModal } from './components/RoutineTemplatesModal';
 import { GlobalSearchModal } from './components/GlobalSearchModal';
+import { ShakibDisciplineGuideModal } from './components/ShakibDisciplineGuideModal';
+import { SocialMediaControlModal } from './components/SocialMediaControlModal';
+import { RestartProtocolModal } from './components/RestartProtocolModal';
+import { WeeklyProgressionDashboardModal } from './components/WeeklyProgressionDashboardModal';
+import { generateShakibMasterPlannerState } from './data/shakibMasterRoutine';
 import { useLanguage } from './context/LanguageContext';
 import {
   PlannerState,
@@ -153,6 +158,12 @@ export default function App() {
   const [isRoutinesModalOpen, setIsRoutinesModalOpen] = useState<boolean>(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState<boolean>(false);
   const [isBadgesModalOpen, setIsBadgesModalOpen] = useState<boolean>(false);
+  const [isShakibGuideOpen, setIsShakibGuideOpen] = useState<boolean>(false);
+  const [isSocialControlModalOpen, setIsSocialControlModalOpen] = useState<boolean>(false);
+  const [socialControlDayIndex, setSocialControlDayIndex] = useState<number>(0);
+  const [isRestartModalOpen, setIsRestartModalOpen] = useState<boolean>(false);
+  const [restartDayIndex, setRestartDayIndex] = useState<number>(0);
+  const [isProgressionDashboardOpen, setIsProgressionDashboardOpen] = useState<boolean>(false);
   const [backupModalMode, setBackupModalMode] = useState<'export' | 'import' | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [currentNavTab, setCurrentNavTab] = useState<PlannerViewMode>('monthly');
@@ -538,6 +549,107 @@ export default function App() {
     },
     [ensureDays]
   );
+
+  const handleLoadShakibMasterPlan = useCallback(() => {
+    const newState = generateShakibMasterPlannerState(currentWeekStart);
+    setPlannerState(newState);
+    plannerStorage.save(newState);
+    fireConfetti();
+    setToastMessage('🎯 শাকিবের ৩০ দিনের Discipline Reset রুটিন সফলভাবে লোড হয়েছে!');
+    setTimeout(() => setToastMessage(null), 4000);
+  }, [currentWeekStart]);
+
+  const handleToggleMinimumDay = useCallback(
+    (dayIndex: number) => {
+      setPlannerState((prev) => {
+        const days = ensureDays(prev.days);
+        const targetDay = days[dayIndex];
+        const nextMinState = !targetDay.isMinimumDay;
+
+        const updatedTasks = nextMinState
+          ? [
+              { id: `min-1-${Date.now()}`, title: 'Fajr — নামাজ', time: '05:00 AM', completed: false, priority: 'high' as const },
+              { id: `min-2-${Date.now()}`, title: 'পানি পান + আজকের কেবল ১টি MUST কাজ নির্ধারণ (৫ মি.)', time: '08:00 AM', completed: false, priority: 'high' as const },
+              { id: `min-3-${Date.now()}`, title: 'Chinese — ১০ মিনিট (শব্দ বা ফ্ল্যাশ কার্ড)', time: '09:15 AM', completed: false, priority: 'high' as const },
+              { id: `min-4-${Date.now()}`, title: 'Johor — নামাজ', time: '01:15 PM', completed: false, priority: 'high' as const },
+              { id: `min-5-${Date.now()}`, title: 'English — ১০ মিনিট (ছোট একটি Podcast/অডিও)', time: '02:30 PM', completed: false, priority: 'high' as const },
+              { id: `min-6-${Date.now()}`, title: 'Asr — নামাজ', time: '04:45 PM', completed: false, priority: 'high' as const },
+              { id: `min-7-${Date.now()}`, title: 'হাঁটা — ১০ মিনিট (হালকা শরীর সচল করা)', time: '05:00 PM', completed: false, priority: 'normal' as const },
+              { id: `min-8-${Date.now()}`, title: 'Maghrib — নামাজ', time: '06:00 PM', completed: false, priority: 'high' as const },
+              { id: `min-9-${Date.now()}`, title: 'Isha — নামাজ', time: '08:00 PM', completed: false, priority: 'high' as const },
+              { id: `min-10-${Date.now()}`, title: 'Reading — ৫ পৃষ্ঠা বই পড়া', time: '09:15 PM', completed: false, priority: 'normal' as const },
+              { id: `min-11-${Date.now()}`, title: 'ফোন বিছানা থেকে দূরে চার্জে রাখা', time: '10:30 PM', completed: false, priority: 'high' as const },
+              { id: `min-12-${Date.now()}`, title: 'ঘুম ও পর্যাপ্ত বিশ্রাম', time: '11:00 PM', completed: false, priority: 'high' as const },
+            ]
+          : targetDay.tasks;
+
+        return {
+          ...prev,
+          days: days.map((d, idx) =>
+            idx === dayIndex
+              ? {
+                  ...d,
+                  isMinimumDay: nextMinState,
+                  tasks: nextMinState ? updatedTasks : d.tasks,
+                }
+              : d
+          ),
+        };
+      });
+
+      setToastMessage('🌿 Minimum Day আপডেট হয়েছে! ধারাবাহিকতা অক্ষুণ্ণ রয়েছে।');
+      setTimeout(() => setToastMessage(null), 3000);
+    },
+    [ensureDays]
+  );
+
+  const handleUpdateThreeTasks = useCallback(
+    (
+      dayIndex: number,
+      threeTasks: {
+        must: string;
+        mustDone: boolean;
+        should: string;
+        shouldDone: boolean;
+        could: string;
+        couldDone: boolean;
+      }
+    ) => {
+      setPlannerState((prev) => {
+        const days = ensureDays(prev.days);
+        return {
+          ...prev,
+          days: days.map((d, idx) => (idx === dayIndex ? { ...d, threeTasks } : d)),
+        };
+      });
+    },
+    [ensureDays]
+  );
+
+  const handleSaveSocialMediaMinutes = useCallback(
+    (dayIndex: number, minutes: number) => {
+      setPlannerState((prev) => {
+        const days = ensureDays(prev.days);
+        return {
+          ...prev,
+          days: days.map((d, idx) => (idx === dayIndex ? { ...d, socialMediaMinutes: minutes } : d)),
+        };
+      });
+      setToastMessage('📱 সোশ্যাল মিডিয়া স্ক্রিন টাইম সংরক্ষিত হয়েছে!');
+      setTimeout(() => setToastMessage(null), 2500);
+    },
+    [ensureDays]
+  );
+
+  const handleOpenSocialControl = useCallback((dayIndex: number) => {
+    setSocialControlDayIndex(dayIndex);
+    setIsSocialControlModalOpen(true);
+  }, []);
+
+  const handleOpenRestartProtocol = useCallback((dayIndex: number) => {
+    setRestartDayIndex(dayIndex);
+    setIsRestartModalOpen(true);
+  }, []);
 
   const handleMoveTask = useCallback(
     (dayIndex: number, fromIndex: number, direction: 'up' | 'down') => {
@@ -1450,6 +1562,7 @@ export default function App() {
         onOpenRoutines={() => setIsRoutinesModalOpen(true)}
         onOpenSearch={() => setIsSearchModalOpen(true)}
         onOpenBadges={() => setIsBadgesModalOpen(true)}
+        onOpenShakibGuide={() => setIsShakibGuideOpen(true)}
         userName={userProfile.name}
         userTagline={userProfile.tagline}
         lastSavedText={lastSavedText}
@@ -1484,6 +1597,54 @@ export default function App() {
         {/* 2. Daily Execution & Tasks */}
         {currentNavTab === 'planner' && (
           <div className="space-y-6">
+            {/* Shakib's 30-Day Discipline Reset Master Quick Banner */}
+            <div className="bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 rounded-3xl p-4 sm:p-5 text-white shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <span className="p-3 bg-white/15 backdrop-blur-md rounded-2xl text-2xl shrink-0">
+                  🎯
+                </span>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-base font-black">
+                      শাকিবের ৩০ দিনের Discipline Reset System
+                    </h3>
+                    <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-mono font-bold tracking-wider uppercase">
+                      Day 1 to Day 30
+                    </span>
+                  </div>
+                  <p className="text-xs text-sky-100 mt-0.5">
+                    ইন্টার্নশিপ (রবি·মঙ্গল·বৃহস্পতি ১০–৩টা), অ্যাডোবি স্টক, পোর্টফোলিও ও ৫ ওয়াক্ত নামাজের পূর্ণাঙ্গ সাপ্তাহিক রুটিন
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 w-full md:w-auto shrink-0 justify-end flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setIsProgressionDashboardOpen(true)}
+                  className="px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                  title="সাপ্তাহিক লক্ষ্য বনাম আসল ও Progression Gate"
+                >
+                  <span>📊</span>
+                  <span>ড্যাশবোর্ড ও Phase</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsShakibGuideOpen(true)}
+                  className="px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition-all cursor-pointer"
+                >
+                  📖 গাইড
+                </button>
+                <button
+                  type="button"
+                  onClick={handleLoadShakibMasterPlan}
+                  className="px-4 py-2 rounded-xl bg-white text-indigo-700 hover:bg-sky-50 text-xs font-black shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>⚡ এই সপ্তাহের রুটিন লোড করুন</span>
+                </button>
+              </div>
+            </div>
+
             <WeeklyStatsSummary
               weekStart={currentWeekStart}
               days={plannerState.days}
@@ -1520,6 +1681,10 @@ export default function App() {
               onDuplicateTask={handleDuplicateTask}
               onClearCompletedTasks={handleClearCompletedTasks}
               onTriggerTestReminder={handleTestReminder}
+              onToggleMinimumDay={handleToggleMinimumDay}
+              onUpdateThreeTasks={handleUpdateThreeTasks}
+              onOpenSocialControl={handleOpenSocialControl}
+              onOpenRestartProtocol={handleOpenRestartProtocol}
             />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -1782,6 +1947,36 @@ export default function App() {
       <GamificationBadgesModal
         isOpen={isBadgesModalOpen}
         onClose={() => setIsBadgesModalOpen(false)}
+        state={plannerState}
+      />
+
+      {/* Shakib's 30-Day Discipline Reset Guide Modal */}
+      <ShakibDisciplineGuideModal
+        isOpen={isShakibGuideOpen}
+        onClose={() => setIsShakibGuideOpen(false)}
+        onLoadFullRoutine={handleLoadShakibMasterPlan}
+      />
+
+      {/* Social Media Control Modal */}
+      <SocialMediaControlModal
+        isOpen={isSocialControlModalOpen}
+        onClose={() => setIsSocialControlModalOpen(false)}
+        dayIndex={socialControlDayIndex}
+        initialMinutes={plannerState.days?.[socialControlDayIndex]?.socialMediaMinutes || 0}
+        onSaveMinutes={handleSaveSocialMediaMinutes}
+      />
+
+      {/* Restart Protocol Modal */}
+      <RestartProtocolModal
+        isOpen={isRestartModalOpen}
+        onClose={() => setIsRestartModalOpen(false)}
+        onApplyMinimumDay={() => handleToggleMinimumDay(restartDayIndex)}
+      />
+
+      {/* Weekly Progression Dashboard Modal */}
+      <WeeklyProgressionDashboardModal
+        isOpen={isProgressionDashboardOpen}
+        onClose={() => setIsProgressionDashboardOpen(false)}
         state={plannerState}
       />
     </div>

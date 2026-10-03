@@ -25,9 +25,12 @@ import {
   CalendarPlus,
   Mic,
   Timer,
+  Smartphone,
+  RotateCcw,
 } from 'lucide-react';
 import { DayPlan, Task, DayInfo, DayMood, DayPrayers } from '../types/planner';
 import { CompletionRing } from './CompletionRing';
+import { DailyThreeTasksWidget } from './DailyThreeTasksWidget';
 import { calculateDailyProgress } from '../utils/calculations';
 import { playTaskCompleteSound } from '../utils/soundEffects';
 import { playWaterDropSound } from '../utils/waterSound';
@@ -71,6 +74,20 @@ interface DayCardProps {
   onPostponeTask?: (dayIndex: number, taskId: string) => void;
   onDuplicateTask?: (dayIndex: number, taskId: string) => void;
   onClearCompletedTasks?: (dayIndex: number) => void;
+  onToggleMinimumDay?: (dayIndex: number) => void;
+  onUpdateThreeTasks?: (
+    dayIndex: number,
+    threeTasks: {
+      must: string;
+      mustDone: boolean;
+      should: string;
+      shouldDone: boolean;
+      could: string;
+      couldDone: boolean;
+    }
+  ) => void;
+  onOpenSocialControl?: (dayIndex: number) => void;
+  onOpenRestartProtocol?: (dayIndex: number) => void;
 }
 
 const MOODS: { type: DayMood; emoji: string; label: string }[] = [
@@ -172,6 +189,10 @@ export const DayCard: React.FC<DayCardProps> = ({
   onPostponeTask,
   onDuplicateTask,
   onClearCompletedTasks,
+  onToggleMinimumDay,
+  onUpdateThreeTasks,
+  onOpenSocialControl,
+  onOpenRestartProtocol,
 }) => {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskTime, setNewTaskTime] = useState('');
@@ -381,13 +402,18 @@ export const DayCard: React.FC<DayCardProps> = ({
       {/* Card Header */}
       <div className="p-3.5 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between gap-3">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <h3 className="text-base font-extrabold tracking-tight text-slate-900 dark:text-white">
               {dayInfo.dayName}
             </h3>
             {dayInfo.isToday && (
               <span className="text-[10px] uppercase font-black text-amber-800 dark:text-amber-200 bg-amber-100/90 dark:bg-amber-950/70 px-2 py-0.5 rounded-full border border-amber-300 dark:border-amber-700/60 shadow-2xs font-mono">
                 আজ / Today
+              </span>
+            )}
+            {dayPlan?.isMinimumDay && (
+              <span className="text-[10px] font-black text-emerald-800 dark:text-emerald-200 bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-300 dark:border-emerald-700 font-mono shadow-2xs">
+                🌿 Min Day
               </span>
             )}
             {isMastered && (
@@ -402,13 +428,54 @@ export const DayCard: React.FC<DayCardProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap justify-end">
+          {/* Minimum Day Mode Toggle */}
+          {onToggleMinimumDay && (
+            <button
+              type="button"
+              onClick={() => onToggleMinimumDay(dayInfo.dayIndex)}
+              className={`px-2 py-1 rounded-xl text-[10px] font-bold border transition-all cursor-pointer flex items-center gap-1 shadow-2xs ${
+                dayPlan?.isMinimumDay
+                  ? 'bg-emerald-600 text-white border-emerald-500'
+                  : 'bg-slate-50 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-zinc-700 hover:border-emerald-500 hover:text-emerald-600'
+              }`}
+              title={dayPlan?.isMinimumDay ? 'স্বাভাবিক রুটিনে ফিরুন' : 'ক্লান্ত বা ব্যস্ত? ১-ক্লিকে Minimum Day চালু করুন'}
+            >
+              <span>🌿</span>
+              <span className="hidden sm:inline">{dayPlan?.isMinimumDay ? 'Minimum চালু' : 'Min Day'}</span>
+            </button>
+          )}
+
+          {/* Social Media Budget button */}
+          {onOpenSocialControl && (
+            <button
+              type="button"
+              onClick={() => onOpenSocialControl(dayInfo.dayIndex)}
+              className="p-1.5 text-slate-400 hover:text-pink-600 dark:hover:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-950/40 rounded-xl cursor-pointer transition-colors"
+              title="সোশ্যাল মিডিয়া স্ক্রিন টাইম ও ১৫-মি. রিলস টাইমার"
+            >
+              <Smartphone className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          {/* Restart Protocol button */}
+          {onOpenRestartProtocol && (
+            <button
+              type="button"
+              onClick={() => onOpenRestartProtocol(dayInfo.dayIndex)}
+              className="p-1.5 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-xl cursor-pointer transition-colors"
+              title="রুটিন ভেঙে গেলে: ৩-ধাপের Restart Protocol"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+          )}
+
           {tasks.length > 0 && (
             <button
               type="button"
               onClick={() => exportTasksToIcs(tasks, dayInfo.dateStr, dayInfo.dayName)}
               className="p-1.5 text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors"
-              title="আজকের সব কাজ মোবাইলে ও গুগল ক্যালেন্ডারে সেভ করুন (.ics ফাইল - ব্রাউজার বন্ধ থাকলেও অ্যালার্ম বাজবে)"
+              title="আজকের সব কাজ মোবাইলে ও গুগল ক্যালেন্ডারে সেভ করুন (.ics ফাইল)"
             >
               <Calendar className="w-4 h-4 text-sky-500" />
             </button>
@@ -592,6 +659,18 @@ export const DayCard: React.FC<DayCardProps> = ({
               </button>
             );
           })}
+        </div>
+      )}
+
+      {/* Daily 3-Task System (MUST / SHOULD / COULD) */}
+      {onUpdateThreeTasks && (
+        <div className="px-3.5 pt-2.5 pb-1 border-b border-slate-100 dark:border-slate-800/60">
+          <DailyThreeTasksWidget
+            dayPlan={dayPlan || { date: dayInfo.dateStr, tasks: [], note: '' }}
+            dayIndex={dayInfo.dayIndex}
+            dayName={dayInfo.dayName}
+            onUpdateThreeTasks={onUpdateThreeTasks}
+          />
         </div>
       )}
 

@@ -34,6 +34,16 @@ export type DayPlan = {
   waterGlasses?: number; // 0 to 8 glasses
   winOfTheDay?: string; // Daily highlight or achievement
   gratitude?: string; // What I am grateful for today
+  isMinimumDay?: boolean; // Minimum Viable Day mode (Section 8)
+  socialMediaMinutes?: number; // Daily Facebook+YouTube minutes (Section 7)
+  threeTasks?: {
+    must: string;
+    mustDone: boolean;
+    should: string;
+    shouldDone: boolean;
+    could: string;
+    couldDone: boolean;
+  };
 };
 
 export type ThemeType = 'minimal' | 'sage' | 'latte' | 'obsidian';

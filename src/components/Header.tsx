@@ -26,6 +26,7 @@ import {
   Headphones,
   Languages,
   Award,
+  Compass,
 } from 'lucide-react';
 import { formatWeekRangeLabel, getMondayOfWeek } from '../utils/dateUtils';
 import { ThemeType } from '../types/planner';
@@ -57,6 +58,7 @@ interface HeaderProps {
   onOpenRoutines?: () => void;
   onOpenSearch?: () => void;
   onOpenBadges?: () => void;
+  onOpenShakibGuide?: () => void;
   userName?: string;
   userTagline?: string;
   lastSavedText: string;
@@ -91,6 +93,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenRoutines,
   onOpenSearch,
   onOpenBadges,
+  onOpenShakibGuide,
   userName = 'Shakib',
   userTagline,
   lastSavedText,
@@ -296,6 +299,19 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
               <span className="hidden xl:inline">{isBn ? 'রুটিন টেমপ্লেট' : 'Routines'}</span>
+            </button>
+          )}
+
+          {/* Shakib 30-Day Discipline Reset Guide */}
+          {onOpenShakibGuide && (
+            <button
+              type="button"
+              onClick={onOpenShakibGuide}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-indigo-300 dark:border-indigo-700 bg-gradient-to-r from-indigo-50 to-sky-50 dark:from-indigo-950/50 dark:to-sky-950/50 text-indigo-700 dark:text-indigo-300 hover:opacity-95 transition-all cursor-pointer text-xs font-black shadow-2xs"
+              title={isBn ? 'শাকিবের ৩০ দিনের Discipline Reset গাইড ও সিস্টেম' : "Shakib's 30-Day Discipline Reset Guide"}
+            >
+              <Compass className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 animate-spin-slow" />
+              <span className="hidden md:inline">{isBn ? '৩০ দিনের গাইড' : '30-Day Guide'}</span>
             </button>
           )}
 

@@ -143,3 +143,6 @@ export function playReminderAlarmSound(): void {
     // ignore
   }
 }
+
+export const playCelebrationSound = playLevelUpSound;
+export const playReminderChime = playReminderAlarmSound;

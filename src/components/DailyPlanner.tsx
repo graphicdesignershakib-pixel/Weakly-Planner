@@ -60,6 +60,20 @@ interface DailyPlannerProps {
   onDuplicateTask?: (dayIndex: number, taskId: string) => void;
   onClearCompletedTasks?: (dayIndex: number) => void;
   onTriggerTestReminder?: () => void;
+  onToggleMinimumDay?: (dayIndex: number) => void;
+  onUpdateThreeTasks?: (
+    dayIndex: number,
+    threeTasks: {
+      must: string;
+      mustDone: boolean;
+      should: string;
+      shouldDone: boolean;
+      could: string;
+      couldDone: boolean;
+    }
+  ) => void;
+  onOpenSocialControl?: (dayIndex: number) => void;
+  onOpenRestartProtocol?: (dayIndex: number) => void;
 }
 
 // Convert "09:30 AM" or "14:00" to minutes from 00:00
@@ -124,6 +138,10 @@ export const DailyPlanner: React.FC<DailyPlannerProps> = ({
   onDuplicateTask,
   onClearCompletedTasks,
   onTriggerTestReminder,
+  onToggleMinimumDay,
+  onUpdateThreeTasks,
+  onOpenSocialControl,
+  onOpenRestartProtocol,
 }) => {
   // Mode switcher: 'cards' (7 Days Grid) vs 'schedule' (Hourly Timeline Time-Blocking)
   const [plannerMode, setPlannerMode] = useState<'cards' | 'schedule'>('cards');
@@ -607,6 +625,10 @@ export const DailyPlanner: React.FC<DailyPlannerProps> = ({
                 onPostponeTask={onPostponeTask}
                 onDuplicateTask={onDuplicateTask}
                 onClearCompletedTasks={onClearCompletedTasks}
+                onToggleMinimumDay={onToggleMinimumDay}
+                onUpdateThreeTasks={onUpdateThreeTasks}
+                onOpenSocialControl={onOpenSocialControl}
+                onOpenRestartProtocol={onOpenRestartProtocol}
               />
             );
           })}
