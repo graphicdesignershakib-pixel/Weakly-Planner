@@ -21,6 +21,8 @@ import {
   Sunset,
   Moon,
   Coffee,
+  Calendar,
+  CalendarPlus,
 } from 'lucide-react';
 import { DayPlan, Task, DayInfo, DayMood, DayPrayers } from '../types/planner';
 import { CompletionRing } from './CompletionRing';
@@ -28,6 +30,7 @@ import { calculateDailyProgress } from '../utils/calculations';
 import { playTaskCompleteSound } from '../utils/soundEffects';
 import { playWaterDropSound } from '../utils/waterSound';
 import { fireConfetti } from '../utils/confetti';
+import { createGoogleCalendarUrl, exportTasksToIcs } from '../utils/calendarSync';
 
 interface DayCardProps {
   dayInfo: DayInfo;
@@ -338,7 +341,17 @@ export const DayCard: React.FC<DayCardProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          {tasks.length > 0 && (
+            <button
+              type="button"
+              onClick={() => exportTasksToIcs(tasks, dayInfo.dateStr, dayInfo.dayName)}
+              className="p-1.5 text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors"
+              title="আজকের সব কাজ মোবাইলে ও গুগল ক্যালেন্ডারে সেভ করুন (.ics ফাইল - ব্রাউজার বন্ধ থাকলেও অ্যালার্ম বাজবে)"
+            >
+              <Calendar className="w-4 h-4 text-sky-500" />
+            </button>
+          )}
           <CompletionRing progress={progress} size={40} strokeWidth={3.5} />
         </div>
       </div>
@@ -712,6 +725,19 @@ export const DayCard: React.FC<DayCardProps> = ({
                               <span>অ্যালার্ট</span>
                             </button>
                           ) : null}
+
+                          {/* Sync to Google Calendar & Phone Alarm Button */}
+                          <a
+                            href={createGoogleCalendarUrl(task.title, dayInfo.dateStr, task.time, task.endTime, dayInfo.dayName)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 transition-opacity cursor-pointer inline-flex items-center gap-0.5 text-[9px] bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950 px-1 rounded"
+                            title="গুগল ক্যালেন্ডারে যোগ করুন (অ্যাপ বন্ধ থাকলেও ফোনে অ্যালার্ম বাজবে ও মেইল আসবে)"
+                          >
+                            <CalendarPlus className="w-2.5 h-2.5 text-sky-500" />
+                            <span>ক্যালেন্ডার</span>
+                          </a>
 
                           <span
                             onClick={() => handleToggle(task)}

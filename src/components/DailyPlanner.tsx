@@ -17,8 +17,12 @@ import {
   SunMedium,
   Sunset,
   Moon,
+  Smartphone,
+  CalendarPlus,
 } from 'lucide-react';
 import { playReminderAlarmSound } from '../utils/soundEffects';
+import { createGoogleCalendarUrl } from '../utils/calendarSync';
+import { PhoneEmailAlertModal } from './PhoneEmailAlertModal';
 
 interface DailyPlannerProps {
   daysInfo: DayInfo[];
@@ -136,6 +140,7 @@ export const DailyPlanner: React.FC<DailyPlannerProps> = ({
   const [slotQuickAddHour, setSlotQuickAddHour] = useState<string | null>(null);
   const [slotQuickAddTitle, setSlotQuickAddTitle] = useState('');
   const [slotQuickAddReminder, setSlotQuickAddReminder] = useState(true);
+  const [isPhoneAlertModalOpen, setIsPhoneAlertModalOpen] = useState(false);
 
   // Current system time in minutes for timeline live-marker
   const [currentTimeMins, setCurrentTimeMins] = useState<number>(() => {
@@ -253,6 +258,17 @@ export const DailyPlanner: React.FC<DailyPlannerProps> = ({
           >
             <Volume2 className="w-3.5 h-3.5 text-indigo-500" />
             <span>শব্দ টেস্ট</span>
+          </button>
+
+          {/* Phone & Email Alert Modal Button */}
+          <button
+            type="button"
+            onClick={() => setIsPhoneAlertModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+            title="মোবাইল ও ইমেইলে অ্যালার্ম ও নোটিফিকেশন সেটআপ"
+          >
+            <Smartphone className="w-3.5 h-3.5" />
+            <span>📱 ফোনে ও মেইলে এলার্ট</span>
           </button>
 
           {/* Mode Switcher Tabs */}
@@ -494,6 +510,17 @@ export const DailyPlanner: React.FC<DailyPlannerProps> = ({
                                   <Bell className="w-3 h-3" />
                                 </button>
                               )}
+
+                              {/* Google Calendar Sync Button */}
+                              <a
+                                href={createGoogleCalendarUrl(task.title, activeDayInfo.dateStr, task.time, task.endTime, activeDayInfo.dayName)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1 text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 rounded-md cursor-pointer hover:bg-sky-50 dark:hover:bg-sky-950 transition-colors"
+                                title="গুগল ক্যালেন্ডারে যোগ করুন (ফোনে অ্যালার্ম ও মেইল আসবে)"
+                              >
+                                <CalendarPlus className="w-3 h-3 text-sky-500" />
+                              </a>
                             </div>
                           </div>
                         ))}
@@ -585,6 +612,15 @@ export const DailyPlanner: React.FC<DailyPlannerProps> = ({
           })}
         </div>
       )}
+
+      {/* Phone & Email Alert Modal */}
+      <PhoneEmailAlertModal
+        isOpen={isPhoneAlertModalOpen}
+        onClose={() => setIsPhoneAlertModalOpen(false)}
+        tasks={activeDayTasks}
+        dateStr={activeDayInfo.dateStr}
+        dayName={activeDayInfo.dayName}
+      />
     </section>
   );
 };
